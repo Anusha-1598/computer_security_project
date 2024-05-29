@@ -16,7 +16,7 @@ Domain of Interest:
 
 
 **Overview:**
-  This project offers a secure document collaboration tool for students, incorporating real-time editing, file management, and role-based access control. It ensures effective collaboration through a user-friendly platform that enhances security, privacy, and the overall collaborative experience.
+This project provides students with a safe platform for document collaboration that includes role-based access control, file management, and real-time editing. By providing a user-friendly platform that improves security, privacy, and the collaborative experience overall, it guarantees successful cooperation.
 
 **Technologies Used:**
 Back-end - Python (Flask) 
