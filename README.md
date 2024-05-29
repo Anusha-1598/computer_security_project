@@ -29,11 +29,14 @@ Libraries - Bcrypt, Flask-JWT-Extended
 1) SQL Injection 
 2) Data Breaches and unauthorized access
 3) Authentication attacks
-4) Man-In-The-Middle
-5) Cross Site Scripting (XSS)
-6) Denial of Service attacks (DoS)
-7) Insecure File Uploads
-8) Cross-Site Request Forgery (CSRF)
+4) Man-In-The-Middle: An attacker intercepts and possibly alters communication between two parties.
+  it can be avoided by Use HTTPS for encrypted communication.
+5) Cross Site Scripting (XSS) :Injection of malicious scripts into webpages viewed by others.
+    It can be stoped by Validate and sanitize inputs. and Implement Content Security Policy (CSP).
+7) Denial of Service attacks (DoS) : Overwhelming a system with illegitimate requests to make it unavailable.
+   It can be stoped by Implement rate limiting
+9) Insecure File Uploads
+10) Cross-Site Request Forgery (CSRF)
 
 
 
