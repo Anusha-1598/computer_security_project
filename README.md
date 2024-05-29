@@ -27,7 +27,7 @@ Authentication - JSON
 Libraries - Bcrypt, Flask-JWT-Extended
 
 **Possible cybersecurity threats and mitigation:**
-1) SQL Injection - A cyberattack known as SQL injection
+1) SQL Injection - A cyberattack known as SQL Injection uses vulnerabilities in a web application's input processing to insert malicious SQL code, which permits unauthorized access to, alteration of, or deletion of database data. This kind of attack can be avoided by properly sanitizing input and by utilizing prepared statements and parameterized queries.
 2) Data Breaches and unauthorized access
 3) Authentication attacks
 4) Man-In-The-Middle: An attacker intercepts and possibly alters communication between two parties.
