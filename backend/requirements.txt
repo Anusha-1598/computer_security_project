@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-SocketIO
+Flask-JWT-Extended
+Flask-Bcrypt
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+requests
