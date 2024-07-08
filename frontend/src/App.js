@@ -1,46 +1,29 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';  // Import Navigate
-import SignUp from './SignUp';
-import Login from './Login';
-import DocumentEditor from './DocumentEditor';
+// src/App.js
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import Register from "./components/Register";
+import Header from "./components/Header";
+import "./App.css"; // Add your CSS here
 
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
-};
-
-const App = () => {
+function App() {
   return (
-    <Router>
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/signup">Sign Up</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/editor">Document Editor</Link>
-            </li>
-          </ul>
-        </nav>
-        <Routes>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/editor"
-            element={
-              <PrivateRoute>
-                <DocumentEditor />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </div>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <div className="App">
+          <div>
+            <Header />
+            <Routes>
+              <Route path="/register" element={<Register />} />
+              {/* Add Login route later */}
+              {/* <Route path="/login" element={<Login />} /> */}
+            </Routes>
+          </div>
+        </div>
+      </Router>
+    </Provider>
   );
-};
+}
 
 export default App;
