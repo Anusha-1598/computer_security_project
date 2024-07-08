@@ -8,7 +8,7 @@ import "./Login.css";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const loginData = useSelector((state) => state.login);
+  const loginData = useSelector((state) => state.login) || {};
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -20,7 +20,7 @@ const Login = () => {
 
   const validate = () => {
     const errors = {};
-    if (!loginData.username.trim()) {
+    if (!loginData.username || !loginData.username.trim()) {
       errors.username = "Username is required";
     }
     if (!loginData.password) {
@@ -68,7 +68,7 @@ const Login = () => {
           type="text"
           name="username"
           label="Username"
-          value={loginData.username}
+          value={loginData.username || ""}
           onChange={handleChange}
           error={errors.username}
         />
@@ -76,7 +76,7 @@ const Login = () => {
           type={passwordVisible ? "text" : "password"}
           name="password"
           label="Password"
-          value={loginData.password}
+          value={loginData.password || ""}
           onChange={handleChange}
           error={errors.password}
           toggleVisibility={() => setPasswordVisible(!passwordVisible)}
