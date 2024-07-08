@@ -3,6 +3,8 @@ import React from "react";
 import { Route, Routes, Link } from "react-router-dom";
 import MyDocuments from "./MyDocuments";
 import SharedDocuments from "./SharedDocuments";
+import EditDocument from "./EditDocument";
+import ViewDocument from "./ViewDocument";
 import "./Dashboard.css"; // Add your CSS here
 
 const Dashboard = () => {
@@ -26,6 +28,8 @@ const Dashboard = () => {
         <Routes>
           <Route path="my-documents" element={<MyDocuments />} />
           <Route path="shared-documents" element={<SharedDocuments />} />
+          <Route path="edit-document/:id" element={<EditDocument />} />
+          <Route path="view-document/:id" element={<ViewDocument />} />
         </Routes>
       </div>
     </div>
