@@ -1,11 +1,10 @@
-// src/components/MyDocuments.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setDocuments, setCurrentDocument } from "../redux/documentsSlice";
 import RenamePopup from "./RenamePopup";
 import DeleteConfirmationPopup from "./DeleteConfirmationPopup";
 import SharePopup from "./SharePopup";
-import "./MyDocuments.css"; // Add your CSS here
+import "./MyDocuments.css";
 
 const MyDocuments = () => {
   const dispatch = useDispatch();
@@ -66,6 +65,11 @@ const MyDocuments = () => {
   return (
     <div className="my-documents">
       <h2>My Documents</h2>
+      <div className="document-headers">
+        <span className="file-name">File Name</span>
+        <span className="date-created">Date Created</span>
+        <span className="actions">Actions</span>
+      </div>
       <ul>
         {documents.map((doc) => (
           <li key={doc.fileId}>
