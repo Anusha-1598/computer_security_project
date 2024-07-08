@@ -1,3 +1,4 @@
+// src/redux/documentsSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -50,6 +51,9 @@ const documentsSlice = createSlice({
         state.currentDocument.content = newContent;
       }
     },
+    addDocument: (state, action) => {
+      state.documents.push(action.payload);
+    },
   },
 });
 
@@ -61,5 +65,6 @@ export const {
   setCurrentDocument,
   updateSharedUsers,
   updateDocumentContent,
+  addDocument,
 } = documentsSlice.actions;
 export default documentsSlice.reducer;
