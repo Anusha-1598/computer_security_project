@@ -1,11 +1,17 @@
+// src/components/MyDocuments.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setDocuments, setCurrentDocument } from "../redux/documentsSlice";
+import {
+  setDocuments,
+  setCurrentDocument,
+  addDocument,
+} from "../redux/documentsSlice";
 import RenamePopup from "./RenamePopup";
 import DeleteConfirmationPopup from "./DeleteConfirmationPopup";
 import SharePopup from "./SharePopup";
-import "./MyDocuments.css";
+import NewDocumentPopup from "./NewDocumentPopup";
+import "./MyDocuments.css"; // Add your CSS here
 
 const MyDocuments = () => {
   const dispatch = useDispatch();
@@ -14,6 +20,7 @@ const MyDocuments = () => {
   const [isRenamePopupOpen, setIsRenamePopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
+  const [isNewDocumentPopupOpen, setIsNewDocumentPopupOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   useEffect(() => {
@@ -72,6 +79,23 @@ const MyDocuments = () => {
     navigate(`/dashboard/view-document/${doc.fileId}`);
   };
 
+  const handleNewDocumentClick = () => {
+    setIsNewDocumentPopupOpen(true);
+  };
+
+  const handleCreateNewDocument = (fileName) => {
+    const newDocument = {
+      userId: 1,
+      fileId: documents.length + 104,
+      fileName,
+      dateCreated: new Date().toISOString().split("T")[0],
+      sharedUsers: [],
+      content: "",
+    };
+    dispatch(addDocument(newDocument));
+    setIsNewDocumentPopupOpen(false);
+  };
+
   return (
     <div className="my-documents">
       <h2>My Documents</h2>
@@ -127,7 +151,9 @@ const MyDocuments = () => {
           </li>
         ))}
       </ul>
-      <button className="floating-button">+</button>
+      <button className="floating-button" onClick={handleNewDocumentClick}>
+        +
+      </button>
       {isRenamePopupOpen && selectedDocument && (
         <RenamePopup
           fileId={selectedDocument.fileId}
@@ -147,6 +173,12 @@ const MyDocuments = () => {
           fileId={selectedDocument.fileId}
           sharedUsers={selectedDocument.sharedUsers}
           onClose={() => setIsSharePopupOpen(false)}
+        />
+      )}
+      {isNewDocumentPopupOpen && (
+        <NewDocumentPopup
+          onClose={() => setIsNewDocumentPopupOpen(false)}
+          onCreate={handleCreateNewDocument}
         />
       )}
     </div>
