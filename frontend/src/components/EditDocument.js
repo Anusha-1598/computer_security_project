@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { updateDocumentContent } from "../redux/documentsSlice";
 import "./EditDocument.css";
 
 const EditDocument = () => {
   const currentDocument = useSelector(
     (state) => state.documents.currentDocument
   );
+  const dispatch = useDispatch();
   const [content, setContent] = useState("");
+  const [acknowledgment, setAcknowledgment] = useState("");
 
   useEffect(() => {
     if (currentDocument) {
@@ -23,8 +26,14 @@ const EditDocument = () => {
   };
 
   const handleSave = () => {
-    // Implement save logic here
-    console.log("Document saved:", content);
+    dispatch(
+      updateDocumentContent({
+        fileId: currentDocument.fileId,
+        newContent: content,
+      })
+    );
+    setAcknowledgment("Document content saved successfully!");
+    setTimeout(() => setAcknowledgment(""), 3000);
   };
 
   return (
@@ -68,6 +77,7 @@ const EditDocument = () => {
           Save
         </button>
       </div>
+      {acknowledgment && <div className="acknowledgment">{acknowledgment}</div>}
     </div>
   );
 };

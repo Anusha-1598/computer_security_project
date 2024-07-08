@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   documents: [],
-  currentDocument: null,
   sharedDocuments: [],
+  currentDocument: null,
 };
 
 const documentsSlice = createSlice({
@@ -12,6 +12,9 @@ const documentsSlice = createSlice({
   reducers: {
     setDocuments: (state, action) => {
       state.documents = action.payload;
+    },
+    setSharedDocuments: (state, action) => {
+      state.sharedDocuments = action.payload;
     },
     updateDocumentName: (state, action) => {
       const { fileId, newName } = action.payload;
@@ -35,8 +38,17 @@ const documentsSlice = createSlice({
         document.sharedUsers = sharedUsers;
       }
     },
-    setSharedDocuments: (state, action) => {
-      state.sharedDocuments = action.payload;
+    updateDocumentContent: (state, action) => {
+      const { fileId, newContent } = action.payload;
+      const document =
+        state.documents.find((doc) => doc.fileId === fileId) ||
+        state.sharedDocuments.find((doc) => doc.fileId === fileId);
+      if (document) {
+        document.content = newContent;
+      }
+      if (state.currentDocument && state.currentDocument.fileId === fileId) {
+        state.currentDocument.content = newContent;
+      }
     },
   },
 });
@@ -48,5 +60,6 @@ export const {
   deleteDocument,
   setCurrentDocument,
   updateSharedUsers,
+  updateDocumentContent,
 } = documentsSlice.actions;
 export default documentsSlice.reducer;

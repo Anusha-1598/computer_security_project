@@ -1,14 +1,15 @@
-// src/components/MyDocuments.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { setDocuments, setCurrentDocument } from "../redux/documentsSlice";
 import RenamePopup from "./RenamePopup";
 import DeleteConfirmationPopup from "./DeleteConfirmationPopup";
 import SharePopup from "./SharePopup";
-import "./MyDocuments.css"; // Add your CSS here
+import "./MyDocuments.css";
 
 const MyDocuments = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const documents = useSelector((state) => state.documents.documents);
   const [isRenamePopupOpen, setIsRenamePopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
@@ -24,6 +25,7 @@ const MyDocuments = () => {
         fileName: "Document 1",
         dateCreated: "2023-07-01",
         sharedUsers: [],
+        content: "Sample content for Document 1",
       },
       {
         userId: 1,
@@ -31,6 +33,7 @@ const MyDocuments = () => {
         fileName: "Document 2",
         dateCreated: "2023-07-02",
         sharedUsers: [],
+        content: "Sample content for Document 2",
       },
       {
         userId: 1,
@@ -38,6 +41,7 @@ const MyDocuments = () => {
         fileName: "Document 3",
         dateCreated: "2023-07-03",
         sharedUsers: [],
+        content: "Sample content for Document 3",
       },
     ];
     dispatch(setDocuments(fetchedDocuments));
@@ -60,12 +64,22 @@ const MyDocuments = () => {
 
   const handleEditClick = (doc) => {
     dispatch(setCurrentDocument(doc));
-    window.open(`/dashboard/edit-document/${doc.fileId}`, "_blank");
+    navigate(`/dashboard/edit-document/${doc.fileId}`);
+  };
+
+  const handleViewClick = (doc) => {
+    dispatch(setCurrentDocument(doc));
+    navigate(`/dashboard/view-document/${doc.fileId}`);
   };
 
   return (
     <div className="my-documents">
       <h2>My Documents</h2>
+      <div className="document-headers">
+        <span className="file-name">File Name</span>
+        <span className="date-created">Date Created</span>
+        <span className="actions">Actions</span>
+      </div>
       <ul>
         {documents.map((doc) => (
           <li key={doc.fileId}>
@@ -74,6 +88,13 @@ const MyDocuments = () => {
               <span className="date-created">{doc.dateCreated}</span>
             </div>
             <div className="document-actions">
+              <button
+                className="icon-button"
+                title="View"
+                onClick={() => handleViewClick(doc)}
+              >
+                <i className="fas fa-eye"></i>
+              </button>
               <button
                 className="icon-button"
                 title="Edit"
