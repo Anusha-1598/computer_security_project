@@ -4,7 +4,9 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import Register from "./components/Register";
+import Login from "./components/Login";
 import Header from "./components/Header";
+import Dashboard from "./components/Dashboard";
 import "./App.css"; // Add your CSS here
 
 function App() {
@@ -12,12 +14,12 @@ function App() {
     <Provider store={store}>
       <Router>
         <div className="App">
-          <div>
-            <Header />
+          <Header />
+          <div className="main-content">
             <Routes>
               <Route path="/register" element={<Register />} />
-              {/* Add Login route later */}
-              {/* <Route path="/login" element={<Login />} /> */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard/*" element={<Dashboard />} />
             </Routes>
           </div>
         </div>
