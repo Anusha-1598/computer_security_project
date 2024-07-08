@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   documents: [],
+  sharedDocuments: [],
 };
 
 const documentsSlice = createSlice({
@@ -11,8 +12,11 @@ const documentsSlice = createSlice({
     setDocuments: (state, action) => {
       state.documents = action.payload;
     },
+    setSharedDocuments: (state, action) => {
+      state.sharedDocuments = action.payload;
+    },
   },
 });
 
-export const { setDocuments } = documentsSlice.actions;
+export const { setDocuments, setSharedDocuments } = documentsSlice.actions;
 export default documentsSlice.reducer;
