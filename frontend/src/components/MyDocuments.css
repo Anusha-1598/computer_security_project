@@ -11,6 +11,20 @@
   margin-bottom: 20px;
 }
 
+.document-headers {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.document-headers .file-name,
+.document-headers .date-created,
+.document-headers .actions {
+  width: 30%;
+  text-align: left;
+}
+
 .my-documents ul {
   list-style-type: none;
   padding: 0;
@@ -28,15 +42,14 @@
 
 .document-info {
   display: flex;
-  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
 }
 
-.file-name {
-  font-weight: bold;
-}
-
+.file-name,
 .date-created {
-  color: #888;
+  width: 45%;
+  text-align: left;
 }
 
 .document-actions {
