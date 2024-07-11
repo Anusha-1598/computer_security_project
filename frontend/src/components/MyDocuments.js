@@ -17,6 +17,7 @@ const MyDocuments = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const documents = useSelector((state) => state.documents.documents);
+  const currentUser = useSelector((state) => state.login.loginUser);
   const [isRenamePopupOpen, setIsRenamePopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
@@ -24,34 +25,42 @@ const MyDocuments = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   useEffect(() => {
-    // Fetch documents (hardcoded for now)
-    const fetchedDocuments = [
-      {
-        userId: 1,
-        fileId: 101,
-        fileName: "Document 1",
-        dateCreated: "2023-07-01",
-        sharedUsers: [],
-        content: "Sample content for Document 1",
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/getUserDocuments", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
-      {
-        userId: 1,
-        fileId: 102,
-        fileName: "Document 2",
-        dateCreated: "2023-07-02",
-        sharedUsers: [],
-        content: "Sample content for Document 2",
-      },
-      {
-        userId: 1,
-        fileId: 103,
-        fileName: "Document 3",
-        dateCreated: "2023-07-03",
-        sharedUsers: [],
-        content: "Sample content for Document 3",
-      },
-    ];
-    dispatch(setDocuments(fetchedDocuments));
+      body: JSON.stringify({ userId: currentUser }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          res.json().then((res) => {
+            let fetchedDocuments = [...res.filesList];
+            let l = [];
+            for (var i = 0; i < fetchedDocuments.length; i++) {
+              let su = [];
+              for (var j = 0; j < fetchedDocuments[i].sharedUsers.length; j++) {
+                let obj = { ...fetchedDocuments[i].sharedUsers[j] };
+                su.push({
+                  userId: obj.userId,
+                  permissions: obj.permission.split(","),
+                });
+              }
+              fetchedDocuments[i].sharedUsers = [...su];
+              l.push(fetchedDocuments[i]);
+            }
+            dispatch(setDocuments(l));
+          });
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch((err) => {
+        alert("Failed to fetch documents due to : \n" + err.message);
+      });
   }, [dispatch]);
 
   const handleRenameClick = (doc) => {

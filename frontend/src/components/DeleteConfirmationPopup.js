@@ -1,14 +1,37 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteDocument } from "../redux/documentsSlice";
 import "./Popup.css";
 
 const DeleteConfirmationPopup = ({ fileId, fileName, onClose }) => {
+  const currentUser = useSelector((state) => state.login.loginUser);
+
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    dispatch(deleteDocument(fileId));
-    onClose();
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/deleteDocument", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ userId: currentUser, fileId: fileId }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          res.json().then((res) => {
+            dispatch(deleteDocument(fileId));
+          });
+        } else {
+          alert(res.message);
+        }
+        onClose();
+      })
+      .catch((err) => {
+        alert("Failed to delete document due to : \n" + err.message);
+      });
   };
 
   return (
