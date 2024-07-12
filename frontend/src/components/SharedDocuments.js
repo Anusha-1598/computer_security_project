@@ -10,36 +10,55 @@ import "./SharedDocuments.css"; // Add your CSS here
 const SharedDocuments = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.login.loginUser);
   const sharedDocuments = useSelector(
     (state) => state.documents.sharedDocuments
   );
 
   useEffect(() => {
     // Fetch shared documents (hardcoded for now)
-    const fetchedSharedDocuments = [
-      {
-        fileId: 201,
-        fileName: "Shared Doc 1",
-        ownerName: "User A",
-        permissions: ["view"],
-        content: "Sample content for Shared Doc 1",
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/getSharedDocuments", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
-      {
-        fileId: 202,
-        fileName: "Shared Doc 2",
-        ownerName: "User B",
-        permissions: ["view", "edit"],
-        content: "Sample content for Shared Doc 2",
-      },
-      {
-        fileId: 203,
-        fileName: "Shared Doc 3",
-        ownerName: "User C",
-        permissions: ["edit"],
-        content: "Sample content for Shared Doc 3",
-      },
-    ];
-    dispatch(setSharedDocuments(fetchedSharedDocuments));
+      body: JSON.stringify({ userId: currentUser }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          res.json().then((res) => {
+            let fetchedSharedDocuments = [...res.filesList];
+            let l = [];
+            for (var i = 0; i < fetchedSharedDocuments.length; i++) {
+              let su = [];
+              for (
+                var j = 0;
+                j < fetchedSharedDocuments[i].sharedUsers.length;
+                j++
+              ) {
+                let obj = { ...fetchedSharedDocuments[i].sharedUsers[j] };
+                su.push({
+                  userId: obj.userId,
+                  permissions: obj.permission.split(","),
+                });
+              }
+              fetchedSharedDocuments[i].sharedUsers = [...su];
+              fetchedSharedDocuments[i].permissions =
+                fetchedSharedDocuments[i].permissions.split(",");
+              l.push(fetchedSharedDocuments[i]);
+            }
+            dispatch(setSharedDocuments(l));
+          });
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch((err) => {
+        alert("Failed to fetch documents due to : \n" + err.message);
+      });
   }, [dispatch]);
 
   const handleViewClick = (doc) => {

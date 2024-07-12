@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   username: "",
   password: "",
+  loginUser: "chandu",
 };
 
 const loginSlice = createSlice({
@@ -12,9 +13,13 @@ const loginSlice = createSlice({
     setLoginData: (state, action) => {
       state[action.payload.name] = action.payload.value;
     },
+    setLoginUser: (state, action) => {
+      state.loginUser = action.payload;
+    },
     resetLoginForm: () => initialState,
   },
 });
 
-export const { setLoginData, resetLoginForm } = loginSlice.actions;
+export const { setLoginData, resetLoginForm, setLoginUser } =
+  loginSlice.actions;
 export default loginSlice.reducer;
