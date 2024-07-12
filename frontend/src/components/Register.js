@@ -1,18 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
 import { setFormData, resetForm } from "../redux/registerSlice";
 import FormInput from "./FormInput";
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import "./Register.css";
+import { setLoginUser } from "../redux/loginSlice";
 
 const Register = () => {
   const dispatch = useDispatch();
   const formData = useSelector((state) => state.register);
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
+      method: "POST",
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          res.json().then((res) => {
+            dispatch(setLoginUser(res.userId));
+            let goToDashBoard = () => navigate("/dashboard");
+            goToDashBoard();
+          });
+        }
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
+  }, []);
 
   const handleChange = (e) => {
     const sanitizedValue = DOMPurify.sanitize(e.target.value);
@@ -43,17 +64,20 @@ const Register = () => {
       return;
     }
     try {
-      const response = await fetch("https://example.com/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-        }),
-      });
+      const response = await fetch(
+        "http://127.0.0.1:3658/m1/593636-0-default/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         setMessage("Registration successful!");
