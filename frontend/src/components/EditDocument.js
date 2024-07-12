@@ -4,6 +4,7 @@ import { updateDocumentContent } from "../redux/documentsSlice";
 import "./EditDocument.css";
 
 const EditDocument = () => {
+  const currentUser = useSelector((state) => state.login.loginUser);
   const currentDocument = useSelector(
     (state) => state.documents.currentDocument
   );
@@ -13,9 +14,34 @@ const EditDocument = () => {
 
   useEffect(() => {
     if (currentDocument) {
-      setContent(currentDocument.content);
+      fetch("http://127.0.0.1:3658/m1/593636-0-default/getDocumentContent", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          userId: currentUser,
+          fileId: currentDocument.fileId,
+        }),
+      })
+        .then((res) => {
+          if (res.status === 200) {
+            res.json().then((res) => {
+              setContent(res.fileContent);
+            });
+          }
+        })
+        .catch((err) => {
+          alert(
+            "Failed to ftech the document content due to : \n",
+            err.message
+          );
+        });
     }
-  }, [currentDocument]);
+  }, []);
 
   if (!currentDocument) {
     return <div>No document selected</div>;
