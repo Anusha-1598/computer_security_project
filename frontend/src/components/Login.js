@@ -1,26 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
-import { setLoginData, resetLoginForm } from "../redux/loginSlice";
+import { useNavigate } from "react-router-dom";
+import {
+  setLoginData,
+  resetLoginForm,
+  setLoginUser,
+} from "../redux/loginSlice";
 import FormInput from "./FormInput";
 import Button from "./Button";
 import "./Login.css";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const loginData = useSelector((state) => state.login) || {};
+  const loginData = useSelector((state) => state.login);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const sanitizedValue = DOMPurify.sanitize(e.target.value);
     dispatch(setLoginData({ name: e.target.name, value: sanitizedValue }));
   };
 
+  useEffect(() => {
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
+      method: "POST",
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          res.json().then((res) => {
+            dispatch(setLoginUser(res.userId));
+            let goToDashBoard = () => navigate("/dashboard");
+            goToDashBoard();
+          });
+        }
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
+  }, []);
+
   const validate = () => {
     const errors = {};
-    if (!loginData.username || !loginData.username.trim()) {
+    if (!loginData.username.trim()) {
       errors.username = "Username is required";
     }
     if (!loginData.password) {
@@ -37,20 +60,26 @@ const Login = () => {
       return;
     }
     try {
-      const response = await fetch("https://example.com/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: loginData.username,
-          password: loginData.password,
-        }),
-      });
+      const response = await fetch(
+        "http://127.0.0.1:3658/m1/593636-0-default/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: loginData.username,
+            password: loginData.password,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         setMessage("Login successful!");
+        dispatch(setLoginUser(loginData.username));
         dispatch(resetLoginForm());
+        let goToDashBoard = () => navigate("/dashboard");
+        goToDashBoard();
       } else {
         setMessage(`Login failed: ${data.message}`);
       }
@@ -68,7 +97,7 @@ const Login = () => {
           type="text"
           name="username"
           label="Username"
-          value={loginData.username || ""}
+          value={loginData.username}
           onChange={handleChange}
           error={errors.username}
         />
@@ -76,7 +105,7 @@ const Login = () => {
           type={passwordVisible ? "text" : "password"}
           name="password"
           label="Password"
-          value={loginData.password || ""}
+          value={loginData.password}
           onChange={handleChange}
           error={errors.password}
           toggleVisibility={() => setPasswordVisible(!passwordVisible)}

@@ -5,7 +5,8 @@ import {
   setSharedDocuments,
   setCurrentDocument,
 } from "../redux/documentsSlice";
-import "./SharedDocuments.css"; // Add your CSS here
+import "./SharedDocuments.css";
+import { setLoginUser } from "../redux/loginSlice";
 
 const SharedDocuments = () => {
   const dispatch = useDispatch();
@@ -16,48 +17,69 @@ const SharedDocuments = () => {
   );
 
   useEffect(() => {
-    // Fetch shared documents (hardcoded for now)
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/getSharedDocuments", {
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
       method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify({ userId: currentUser }),
     })
       .then((res) => {
         if (res.status === 200) {
           res.json().then((res) => {
-            let fetchedSharedDocuments = [...res.filesList];
-            let l = [];
-            for (var i = 0; i < fetchedSharedDocuments.length; i++) {
-              let su = [];
-              for (
-                var j = 0;
-                j < fetchedSharedDocuments[i].sharedUsers.length;
-                j++
-              ) {
-                let obj = { ...fetchedSharedDocuments[i].sharedUsers[j] };
-                su.push({
-                  userId: obj.userId,
-                  permissions: obj.permission.split(","),
-                });
+            dispatch(setLoginUser(res.userId));
+            fetch(
+              "http://127.0.0.1:3658/m1/593636-0-default/getSharedDocuments",
+              {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({ userId: currentUser }),
               }
-              fetchedSharedDocuments[i].sharedUsers = [...su];
-              fetchedSharedDocuments[i].permissions =
-                fetchedSharedDocuments[i].permissions.split(",");
-              l.push(fetchedSharedDocuments[i]);
-            }
-            dispatch(setSharedDocuments(l));
+            )
+              .then((res) => {
+                if (res.status === 200) {
+                  res.json().then((res) => {
+                    let fetchedSharedDocuments = [...res.filesList];
+                    let l = [];
+                    for (var i = 0; i < fetchedSharedDocuments.length; i++) {
+                      let su = [];
+                      for (
+                        var j = 0;
+                        j < fetchedSharedDocuments[i].sharedUsers.length;
+                        j++
+                      ) {
+                        let obj = {
+                          ...fetchedSharedDocuments[i].sharedUsers[j],
+                        };
+                        su.push({
+                          userId: obj.userId,
+                          permissions: obj.permission.split(","),
+                        });
+                      }
+                      fetchedSharedDocuments[i].sharedUsers = [...su];
+                      fetchedSharedDocuments[i].permissions =
+                        fetchedSharedDocuments[i].permissions.split(",");
+                      l.push(fetchedSharedDocuments[i]);
+                    }
+                    dispatch(setSharedDocuments(l));
+                  });
+                } else {
+                  alert(res.message);
+                }
+              })
+              .catch((err) => {
+                alert("Failed to fetch documents due to : \n" + err.message);
+              });
           });
         } else {
-          alert(res.message);
+          let goToLogin = () => dispatch("/login");
+          goToLogin();
+          dispatch(setLoginUser(""));
         }
       })
       .catch((err) => {
-        alert("Failed to fetch documents due to : \n" + err.message);
+        alert(err.message);
       });
   }, [dispatch]);
 

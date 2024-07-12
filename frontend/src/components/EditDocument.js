@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateDocumentContent } from "../redux/documentsSlice";
 import "./EditDocument.css";
+import { setLoginUser } from "../redux/loginSlice";
 
 const EditDocument = () => {
   const currentUser = useSelector((state) => state.login.loginUser);
@@ -13,34 +14,54 @@ const EditDocument = () => {
   const [acknowledgment, setAcknowledgment] = useState("");
 
   useEffect(() => {
-    if (currentDocument) {
-      fetch("http://127.0.0.1:3658/m1/593636-0-default/getDocumentContent", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({
-          userId: currentUser,
-          fileId: currentDocument.fileId,
-        }),
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
+      method: "POST",
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          res.json().then((res) => {
+            dispatch(setLoginUser(res.userId));
+            if (currentDocument) {
+              fetch(
+                "http://127.0.0.1:3658/m1/593636-0-default/getDocumentContent",
+                {
+                  method: "POST",
+                  credentials: "include",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                  },
+                  body: JSON.stringify({
+                    userId: currentUser,
+                    fileId: currentDocument.fileId,
+                  }),
+                }
+              )
+                .then((res) => {
+                  if (res.status === 200) {
+                    res.json().then((res) => {
+                      setContent(res.fileContent);
+                    });
+                  }
+                })
+                .catch((err) => {
+                  alert(
+                    "Failed to ftech the document content due to : \n",
+                    err.message
+                  );
+                });
+            }
+          });
+        } else {
+          let goToLogin = () => dispatch("/login");
+          goToLogin();
+          dispatch(setLoginUser(""));
+        }
       })
-        .then((res) => {
-          if (res.status === 200) {
-            res.json().then((res) => {
-              setContent(res.fileContent);
-            });
-          }
-        })
-        .catch((err) => {
-          alert(
-            "Failed to ftech the document content due to : \n",
-            err.message
-          );
-        });
-    }
+      .catch((err) => {
+        alert(err.message);
+      });
   }, []);
 
   if (!currentDocument) {

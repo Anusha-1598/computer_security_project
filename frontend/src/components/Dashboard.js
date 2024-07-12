@@ -1,13 +1,14 @@
-// src/components/Dashboard.js
 import React from "react";
 import { Route, Routes, Link } from "react-router-dom";
 import MyDocuments from "./MyDocuments";
 import SharedDocuments from "./SharedDocuments";
 import EditDocument from "./EditDocument";
 import ViewDocument from "./ViewDocument";
-import "./Dashboard.css"; // Add your CSS here
+import "./Dashboard.css";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
+  const loginData = useSelector((state) => state.login);
   return (
     <div className="dashboard">
       <nav className="sidebar">
@@ -26,6 +27,7 @@ const Dashboard = () => {
       </nav>
       <div className="content">
         <Routes>
+          <Route index element={<MyDocuments />}></Route>
           <Route path="my-documents" element={<MyDocuments />} />
           <Route path="shared-documents" element={<SharedDocuments />} />
           <Route path="edit-document/:id" element={<EditDocument />} />
