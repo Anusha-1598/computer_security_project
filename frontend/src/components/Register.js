@@ -17,23 +17,23 @@ const Register = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
-      method: "POST",
-    })
-      .then((res) => {
-        if (res.status === 200) {
-          res.json().then((res) => {
-            dispatch(setLoginUser(res.userId));
-            let goToDashBoard = () => navigate("/dashboard");
-            goToDashBoard();
-          });
-        }
-      })
-      .catch((err) => {
-        alert(err.message);
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://127.0.0.1:3658/m1/593636-0-default/verifyCookie", {
+  //     method: "POST",
+  //   })
+  //     .then((res) => {
+  //       if (res.status === 200) {
+  //         res.json().then((res) => {
+  //           dispatch(setLoginUser(res.userId));
+  //           let goToDashBoard = () => navigate("/dashboard");
+  //           goToDashBoard();
+  //         });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       alert(err.message);
+  //     });
+  // }, []);
 
   const handleChange = (e) => {
     const sanitizedValue = DOMPurify.sanitize(e.target.value);
@@ -64,20 +64,17 @@ const Register = () => {
       return;
     }
     try {
-      const response = await fetch(
-        "http://127.0.0.1:3658/m1/593636-0-default/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: formData.username,
-            password: formData.password,
-            confirmPassword: formData.confirmPassword,
-          }),
-        }
-      );
+      const response = await fetch("http://127.0.0.1:5000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        }),
+      });
       const data = await response.json();
       if (response.ok) {
         setMessage("Registration successful!");

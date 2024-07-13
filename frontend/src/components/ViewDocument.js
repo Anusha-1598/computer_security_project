@@ -12,7 +12,7 @@ const ViewDocument = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
+    fetch("http://127.0.0.1:5000/verifyCookie", {
       method: "POST",
     })
       .then((res) => {
