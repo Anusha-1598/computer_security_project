@@ -25,66 +25,103 @@ const MyDocuments = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
+    fetch("http://127.0.0.1:3658/m1/593636-0-default/getUserDocuments", {
       method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ userId: currentUser }),
     })
       .then((res) => {
         if (res.status === 200) {
           res.json().then((res) => {
-            dispatch(setLoginUser(res.userId));
-            fetch(
-              "http://127.0.0.1:3658/m1/593636-0-default/getUserDocuments",
-              {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                  "Content-Type": "application/json",
-                  Accept: "application/json",
-                  "Access-Control-Allow-Origin": "*",
-                },
-                body: JSON.stringify({ userId: currentUser }),
+            let fetchedDocuments = [...res.filesList];
+            let l = [];
+            for (var i = 0; i < fetchedDocuments.length; i++) {
+              let su = [];
+              for (var j = 0; j < fetchedDocuments[i].sharedUsers.length; j++) {
+                let obj = { ...fetchedDocuments[i].sharedUsers[j] };
+                su.push({
+                  userId: obj.userId,
+                  permissions: obj.permission.split(","),
+                });
               }
-            )
-              .then((res) => {
-                if (res.status === 200) {
-                  res.json().then((res) => {
-                    let fetchedDocuments = [...res.filesList];
-                    let l = [];
-                    for (var i = 0; i < fetchedDocuments.length; i++) {
-                      let su = [];
-                      for (
-                        var j = 0;
-                        j < fetchedDocuments[i].sharedUsers.length;
-                        j++
-                      ) {
-                        let obj = { ...fetchedDocuments[i].sharedUsers[j] };
-                        su.push({
-                          userId: obj.userId,
-                          permissions: obj.permission.split(","),
-                        });
-                      }
-                      fetchedDocuments[i].sharedUsers = [...su];
-                      l.push(fetchedDocuments[i]);
-                    }
-                    dispatch(setDocuments(l));
-                  });
-                } else {
-                  alert(res.message);
-                }
-              })
-              .catch((err) => {
-                alert("Failed to fetch documents due to : \n" + err.message);
-              });
+              fetchedDocuments[i].sharedUsers = [...su];
+              l.push(fetchedDocuments[i]);
+            }
+            dispatch(setDocuments(l));
           });
         } else {
-          let goToLogin = () => dispatch("/login");
-          goToLogin();
-          dispatch(setLoginUser(""));
+          alert(res.message);
         }
       })
       .catch((err) => {
-        alert(err.message);
+        alert("Failed to fetch documents due to : \n" + err.message);
       });
+
+    // fetch("http://127.0.0.1:5000/verifyCookie", {
+    //   method: "POST",
+    // })
+    //   .then((res) => {
+    //     if (res.status === 200) {
+    //       res.json().then((res) => {
+    //         dispatch(setLoginUser(res.userId));
+    //         fetch(
+    //           "http://127.0.0.1:3658/m1/593636-0-default/getUserDocuments",
+    //           {
+    //             method: "POST",
+    //             credentials: "include",
+    //             headers: {
+    //               "Content-Type": "application/json",
+    //               Accept: "application/json",
+    //               "Access-Control-Allow-Origin": "*",
+    //             },
+    //             body: JSON.stringify({ userId: currentUser }),
+    //           }
+    //         )
+    //           .then((res) => {
+    //             if (res.status === 200) {
+    //               res.json().then((res) => {
+    //                 let fetchedDocuments = [...res.filesList];
+    //                 let l = [];
+    //                 for (var i = 0; i < fetchedDocuments.length; i++) {
+    //                   let su = [];
+    //                   for (
+    //                     var j = 0;
+    //                     j < fetchedDocuments[i].sharedUsers.length;
+    //                     j++
+    //                   ) {
+    //                     let obj = { ...fetchedDocuments[i].sharedUsers[j] };
+    //                     su.push({
+    //                       userId: obj.userId,
+    //                       permissions: obj.permission.split(","),
+    //                     });
+    //                   }
+    //                   fetchedDocuments[i].sharedUsers = [...su];
+    //                   l.push(fetchedDocuments[i]);
+    //                 }
+    //                 dispatch(setDocuments(l));
+    //               });
+    //             } else {
+    //               alert(res.message);
+    //             }
+    //           })
+    //           .catch((err) => {
+    //             alert("Failed to fetch documents due to : \n" + err.message);
+    //           });
+    //       });
+    //     } else {
+    //       let goToLogin = () => dispatch("/login");
+    //       goToLogin();
+    //       dispatch(setLoginUser(""));
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     alert(err.message);
+    //   });
   }, [dispatch]);
 
   const handleRenameClick = (doc) => {

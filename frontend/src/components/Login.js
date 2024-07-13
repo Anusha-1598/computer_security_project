@@ -24,8 +24,9 @@ const Login = () => {
   };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/verifySession", {
+    fetch("http://127.0.0.1:5000/verifyCookie", {
       method: "POST",
+      credentials: "include",
     })
       .then((res) => {
         if (res.status === 200) {
@@ -60,19 +61,20 @@ const Login = () => {
       return;
     }
     try {
-      const response = await fetch(
-        "http://127.0.0.1:3658/m1/593636-0-default/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: loginData.username,
-            password: loginData.password,
-          }),
-        }
-      );
+      const response = await fetch("http://127.0.0.1:5000/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "http://127.0.0.1:5000",
+          "Access-Control-Allow-Credentials": "true",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          username: loginData.username,
+          password: loginData.password,
+        }),
+      });
       const data = await response.json();
       if (response.ok) {
         setMessage("Login successful!");
