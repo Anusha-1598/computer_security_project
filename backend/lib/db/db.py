@@ -172,6 +172,17 @@ def renameDocument(userId, fileId, newFileName):
         conn.close()
         return {"body": {"message": "File not found"}, "status_code": 401}
 
+
+def newFile(userId,fileName,dateCreated):
+    # first check the user id is exits in user table or not 
+    # if exists then put the above data in file table
+    fileId = generate_alphanumeric_code()
+    content = ""
+    # return {"body":{"message":"File Created Successfully"}, "status_code":200}
+    # if not exists then return {"body":{"message":"User not found"}, "status_code":401}
+
+
+
 def updateFilePermissions(userId, fileId, sharedUsers):
     conn = connect_db()
     cursor = conn.cursor()
