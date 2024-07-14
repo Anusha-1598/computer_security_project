@@ -1,101 +1,192 @@
+import sqlite3
+from datetime import datetime
 from lib.utils.cryptic import hash_string
+
+def connect_db():
+    return sqlite3.connect('example.db')
+
+def create_tables():
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    # Create users table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        user_id TEXT PRIMARY KEY,
+                        password_hash TEXT NOT NULL
+                      )''')
+    
+    # Create files table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS files (
+                        file_id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL,
+                        date_created TEXT NOT NULL,
+                        file_name TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id)
+                      )''')
+    
+    # Create shared_files table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS shared_files (
+                        id TEXT PRIMARY KEY,
+                        file_id TEXT NOT NULL,
+                        owner_id TEXT NOT NULL,
+                        receiver_id TEXT NOT NULL,
+                        permission TEXT NOT NULL,
+                        FOREIGN KEY (file_id) REFERENCES files(file_id),
+                        FOREIGN KEY (owner_id) REFERENCES users(user_id),
+                        FOREIGN KEY (receiver_id) REFERENCES users(user_id)
+                      )''')
+    
+    # Create cookies table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS cookies (
+                        identifier TEXT NOT NULL,
+                        encrypted_data BLOB NOT NULL
+                      )''')
+    
+    conn.commit()
+    conn.close()
 
 def register_user(username, password):
     if check_username_exists(username):
-        return {"body":{"message":"Username alrady exists"}, "status_code":401}
+        return {"body": {"message": "Username already exists"}, "status_code": 401}
     else:
         password_hash = hash_string(password)
-        print(username,password_hash)
-        # db operation to insert the username and password_hash into db
-        return {"body":{"message":"Registered Successfully"}, "status_code":200}
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (user_id, password_hash) VALUES (?, ?)', (username, password_hash))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "Registered Successfully"}, "status_code": 200}
 
 def check_username_exists(username):
-    # db operation to check the username exists or not in db
-    # return true if exists and false if not exists
-    return False
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (username,))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None
 
-def login_user(username,password):
+def login_user(username, password):
     password_hash = hash_string(password)
-    # db operation to check the credentials username and password_hash with in db
-    # if True return {"body":{"message":"Login Successfully"}, "status_code":200}
-    # else return {"body":{"message":"Inavlid Credentials"}, "status_code":401}
-    return {"body":{"message":"Login Successfully"}, "status_code":200}
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE user_id = ? AND password_hash = ?', (username, password_hash))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        return {"body": {"message": "Login Successfully"}, "status_code": 200}
+    else:
+        return {"body": {"message": "Invalid Credentials"}, "status_code": 401}
 
-def insert_encryption(key,value):
+def insert_encryption(key, value):
     try:
-        # insert key and value in seperate table 
-        # use this table while impleting verfyCookie endpoint
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO cookies (identifier, encrypted_data) VALUES (?, ?, ?)', (key, value))
+        conn.commit()
+        conn.close()
         return True
     except:
         return False
-    
+
 def get_encryption(key):
-    # get the encryption value using the key and return it as follows 
-    # return signal is true and ecrypted string if it exists, False if it is not exists in db 
-    return {"signal":True, "encrypted_string": ""}
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT encrypted_data FROM cookies WHERE identifier = ?', (key,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return {"signal": True, "encrypted_string": result[0]}
+    else:
+        return {"signal": False}
 
 def getDocuments(userId):
-    # get user documents by userId
-    userDocuments = [] # place the list of userDocuments in this list as of {"fileName":"jhgfghj", "fileId":"tggjnb","dateCreated":"khgfdfgh","ownerName":"kjhgfghj"}
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT file_id, file_name, date_created FROM files WHERE user_id = ?', (userId,))
+    userDocuments = [{"fileId": row[0], "fileName": row[1], "dateCreated": row[2]} for row in cursor.fetchall()]
+    
     for document in userDocuments:
-        # get shared users of this document
-        sharedUsers = [] # place the list of sharedusers in this list as of {"userId": "hgfdfghj","permission":"jhgfhh,yghg"} 
-        document["sharedUsers"]=sharedUsers
-
-    return {"body":{"message":"Documents fetched Successfully", "filesList":userDocuments}, "status_code":200}
+        cursor.execute('SELECT receiver_id, permission FROM shared_files WHERE file_id = ?', (document["fileId"],))
+        sharedUsers = [{"userId": row[0], "permission": row[1]} for row in cursor.fetchall()]
+        document["sharedUsers"] = sharedUsers
+    
+    conn.close()
+    return {"body": {"message": "Documents fetched Successfully", "filesList": userDocuments}, "status_code": 200}
 
 def getSharedDocuments(userId):
-    # get user shared Documents by userId
-    sharedDocuments = [] # place the list if shared Documents in this list of as of { "fileId":"tggjnb","ownerName":"kjhgfghj","permissions":"jvbnbvb,iughj"}
-    for document in sharedDocuments:
-        # get filename from userDocuments table using current document file id
-        fileName = "" # put the file name here
-        document["fileName"] = fileName 
-        # get other users who shared with same document
-        sharedUsers = [] # place the list of sharedusers in this list as of {"userId": "hgfdfghj","permission":"jhgfhh,yghg"} 
-        document["sharedUsers"]=sharedUsers
-
-    return {"body":{"message":"Documents fetched Successfully", "filesList":sharedDocuments}, "status_code":200}
-
-def getDocumentContent(userId,fileId):
-    # get the filecontent using fileId and userId
-    fileContent = "" # place the file content in this 
-    # if file exits with fileId 
-    # return {"body":{"message":"Documents fetched Successfully", "fileId":fileId, "fileContent":fileContent}, "status_code":200}
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT file_id, owner_id, permission FROM shared_files WHERE receiver_id = ?', (userId,))
+    sharedDocuments = [{"fileId": row[0], "ownerName": row[1], "permissions": row[2]} for row in cursor.fetchall()]
     
-    # else
-    # return {"body":{"message":"File not found"}, "status_code":401}
-    pass
+    for document in sharedDocuments:
+        cursor.execute('SELECT file_name FROM files WHERE file_id = ?', (document["fileId"],))
+        fileName = cursor.fetchone()[0]
+        document["fileName"] = fileName
+        
+        cursor.execute('SELECT receiver_id, permission FROM shared_files WHERE file_id = ?', (document["fileId"],))
+        sharedUsers = [{"userId": row[0], "permission": row[1]} for row in cursor.fetchall()]
+        document["sharedUsers"] = sharedUsers
+    
+    conn.close()
+    return {"body": {"message": "Documents fetched Successfully", "filesList": sharedDocuments}, "status_code": 200}
 
-def deleteDocument(userId,fileId):
-    # first check the file is exist or not 
-    # if not exists
-    # return {"body":{"message":"File not found"}, "status_code":401}
+def getDocumentContent(userId, fileId):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT content FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    fileContent = cursor.fetchone()
+    conn.close()
+    if fileContent:
+        return {"body": {"message": "Document fetched Successfully", "fileId": fileId, "fileContent": fileContent[0]}, "status_code": 200}
+    else:
+        return {"body": {"message": "File not found"}, "status_code": 401}
 
-    # if file exits delete the file in User Documents table and also Shared Documents Table
-    # return {"body":{"message":"File Deleted Successfully"}, "status_code":200}
-    pass
+def deleteDocument(userId, fileId):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()
+    if file:
+        cursor.execute('DELETE FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+        cursor.execute('DELETE FROM shared_files WHERE file_id = ?', (fileId,))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Deleted Successfully"}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "File not found"}, "status_code": 401}
 
-def renameDocument(userId,fileId):
-    # first check the file is exist or not 
-    # if not exists
-    # return {"body":{"message":"File not found"}, "status_code":401}
+def renameDocument(userId, fileId, newFileName):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()
+    if file:
+        cursor.execute('UPDATE files SET file_name = ? WHERE file_id = ? AND user_id = ?', (newFileName, fileId, userId))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Renamed Successfully"}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "File not found"}, "status_code": 401}
 
-    # if file exits rename the file in User Documents table
-    # return {"body":{"message":"File Renamed Successfully"}, "status_code":200}
-    pass
-
-def updateFilePermissions(userId,fileId,sharedUsers):
-    # first check the file is exist or not 
-    # if not exists
-    # return {"body":{"message":"File not found"}, "status_code":401}
-
-    # if file exits 
-    #       first delete all entries of this fileId in shared Documents Table,
-    #       write all the entries to the shared Documents Table, as below
-    for entry in sharedUsers:
-        sharedUserId = entry["userId"]
-        permission = entry["permission"]
-        #put the data in table
-    # return {"body":{"message":"File Renamed Successfully"}, "status_code":200}
-    pass
+def updateFilePermissions(userId, fileId, sharedUsers):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()
+    if file:
+        cursor.execute('DELETE FROM shared_files WHERE file_id = ?', (fileId,))
+        for entry in sharedUsers:
+            sharedUserId = entry["userId"]
+            permission = entry["permission"]
+            cursor.execute('INSERT INTO shared_files (file_id, owner_id, receiver_id, permission) VALUES (?, ?, ?, ?)', 
+                           (fileId, userId, sharedUserId, permission))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Permissions Updated Successfully"}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "File not found"}, "status_code": 401}
