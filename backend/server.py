@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify, make_response, session
 from flask_cors import CORS
 from flask_socketio import join_room, leave_room, send, SocketIO
-from lib.db.db import register_user, login_user, insert_encryption, get_encryption, getDocuments, getSharedDocuments, getDocumentContent as getDocContent, deleteDocument as deleteDoc,renameDocument as renameDoc, updateFilePermissions as updateFileAccess, newFile as newFileDoc
+from lib.db.db import register_user, login_user, insert_encryption, get_encryption, getDocuments, getSharedDocuments, getDocumentContent as getDocContent, deleteDocument as deleteDoc, renameDocument as renameDoc, updateFilePermissions as updateFileAccess, newFile as newFileDoc
 from lib.utils.cryptic import encrypt_to_fixed_length_string, decrypt_from_fixed_length_string
 import traceback
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "vafuiwkxdml"
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-socketio = SocketIO(app,cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.after_request
 def after_request(response):
@@ -17,57 +18,57 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
-@app.route("/register",methods=["POST"])
+@app.route("/register", methods=["POST"])
 def register():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
-            if json["username"] == "" or json["password"]=="" or json["confirmPassword"]!=json["password"]:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+            if json["username"] == "" or json["password"] == "" or json["confirmPassword"] != json["password"]:
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
-                result = register_user(json["username"],json["password"])
-                return jsonify(result["body"]),result["status_code"]
+                result = register_user(json["username"], json["password"])
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
-@app.route("/login",methods=["POST"])
+@app.route("/login", methods=["POST"])
 def login():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
-            if json["username"] == "" or json["password"]=="":
-                response = make_response(jsonify({"message":'Invalid Data'}))
+            if json["username"] == "" or json["password"] == "":
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
-                result = login_user(json["username"],json["password"])
+                result = login_user(json["username"], json["password"])
                 response = make_response(jsonify(result["body"]))
                 response.status_code = result["status_code"]
-                enc_object = encrypt_to_fixed_length_string({"ip":request.remote_addr,"username":json["username"]})
-                insert_encryption(enc_object["identifier"],enc_object["encrypted_data"])
+                enc_object = encrypt_to_fixed_length_string({"ip": request.remote_addr, "username": json["username"]})
+                insert_encryption(enc_object["identifier"], enc_object["encrypted_data"])
                 print(enc_object["encrypted_data"])
                 response.set_cookie('user', enc_object["identifier"], max_age=60*60*24, httponly=True, secure=False, samesite='None')
                 return response
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
-    
-@app.route("/verifyCookie",methods=["POST"])
+
+@app.route("/verifyCookie", methods=["POST"])
 def verifyCookie():
     try:
         identifier = request.cookies.get("user")
@@ -77,208 +78,207 @@ def verifyCookie():
                 enc_obj = decrypt_from_fixed_length_string(enc_signal_obj["encrypted_string"])
                 print(enc_obj)
                 if enc_obj["ip"] == request.remote_addr:
-                    response = make_response(jsonify({"message":"User Verified"}))
+                    response = make_response(jsonify({"message": "User Verified", "userId": enc_obj["username"]}))
                     response.status_code = 200
                     return response
                 else:
-                    response = make_response(jsonify({"message":"Please login Again"}))
+                    response = make_response(jsonify({"message": "Please login Again"}))
                     response.status_code = 401
                     return response
             else:
-                response = make_response(jsonify({"message":"Invalid Cookie"}))
+                response = make_response(jsonify({"message": "Invalid Cookie"}))
                 response.status_code = 401
                 return response
         else:
-            response = make_response(jsonify({"message":"Cookie not found"}))
+            response = make_response(jsonify({"message": "Cookie not found"}))
             response.status_code = 401
             return response
     except Exception as error:
-        print(traceback.format_exec())
-        response = make_response(jsonify({"message":repr(error)}))
+        print(traceback.format_exc())
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
-@app.route("/getUserDocuments",methods=["POST"])
+@app.route("/getUserDocuments", methods=["POST"])
 def getUserDocuments():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
             if json["userId"] == "" or json["userId"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = getDocuments(json["userId"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
-@app.route("/getSharedDocuments",methods=["POST"])
+@app.route("/getSharedDocuments", methods=["POST"])
 def getSharedDocuments():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
             if json["userId"] == "" or json["userId"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = getSharedDocuments(json["userId"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
-    
-@app.route("/getDocumentContent",methods=["POST"])
+
+@app.route("/getDocumentContent", methods=["POST"])
 def getDocumentContent():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
             if json["fileId"] == "" or json["fileId"] is None or json["userId"] == "" or json["userId"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = getDocContent(json["userId"], json["fileId"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
-@app.route("/deleteDocument",methods=["POST"])
+@app.route("/deleteDocument", methods=["POST"])
 def deleteDocument():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
             if json["fileId"] == "" or json["fileId"] is None or json["userId"] == "" or json["userId"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = deleteDoc(json["userId"], json["fileId"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
-@app.route("/renameDocument",methods=["POST"])
+@app.route("/renameDocument", methods=["POST"])
 def renameDocument():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
             if json["fileId"] == "" or json["fileId"] is None or json["userId"] == "" or json["userId"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = renameDoc(json["userId"], json["fileId"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
-@app.route("/updateFilePermissions",methods=["POST"])
+@app.route("/updateFilePermissions", methods=["POST"])
 def updateFilePermissions():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
             if json["fileId"] == "" or json["fileId"] is None or json["userId"] == "" or json["userId"] is None or json["sharedUsers"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = updateFileAccess(json["userId"], json["fileId"], json["sharedUsers"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
-    
-@app.route("/newFile",methods=["POST"])
+
+@app.route("/newFile", methods=["POST"])
 def newFile():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
-            if json["fileName"] == "" or json["fileName"] is None or json["userId"] == "" or json["userId"]  is None or json["dateCreated"] == "" or json["dateCreated"] is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+            if json["fileName"] == "" or json["fileName"] is None or json["userId"] == "" or json["userId"] is None or json["dateCreated"] == "" or json["dateCreated"] is None:
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 result = newFileDoc(json["userId"], json["fileName"], json["dateCreated"])
-                return jsonify(result["body"]),result["status_code"]
+                return jsonify(result["body"]), result["status_code"]
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
+rooms = {}
 
-rooms={}
-
-@app.route("/preConnect",methods=["POST"])
+@app.route("/preConnect", methods=["POST"])
 def preConnect():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == 'application/json':
             json = request.json
-            if json["fileId"] == "" or json["fileId"] is None or json["userId"] == "" or json["userId"]  is None:
-                response = make_response(jsonify({"message":'Invalid Data'}))
+            if json["fileId"] == "" or json["fileId"] is None or json["userId"] == "" or json["userId"] is None:
+                response = make_response(jsonify({"message": 'Invalid Data'}))
                 response.status_code = 400
                 return response
             else:
                 session["userId"] = json["userId"]
                 session["fileId"] = json["fileId"]
                 if json["fileId"] not in rooms.keys():
-                    rooms[json["fileId"]] = {"users":[],"changes":[]}
-                    return {"message":"Room created for this file"}, 200
+                    rooms[json["fileId"]] = {"users": [], "changes": []}
+                    return jsonify({"message": "Room created for this file"}), 200
                 else:
-                    return {"message":"Room already exists for this file"}, 200
+                    return jsonify({"message": "Room already exists for this file"}), 200
         else:
-            response = make_response(jsonify({"message":'Content-Type not supported!'}))
+            response = make_response(jsonify({"message": 'Content-Type not supported!'}))
             response.status_code = 400
             return response
     except Exception as error:
-        response = make_response(jsonify({"message":repr(error)}))
+        response = make_response(jsonify({"message": repr(error)}))
         response.status_code = 500
         return response
 
@@ -293,8 +293,8 @@ def connect(auth):
         return
     print("connected")
     join_room(fileId)
-    send({"change":"Connected to file room", "userId":""})
-    rooms[fileId]["users"].push(userId)
+    send({"change": "Connected to file room", "userId": ""}, to=fileId)
+    rooms[fileId]["users"].append(userId)
 
 @socketio.on("change")
 def change(data):
@@ -302,9 +302,9 @@ def change(data):
     fileId = session.get("fileId")
     if not userId or not fileId or fileId not in rooms.keys():
         return
-    send({"data":data.content,"userId":userId},to=fileId)
-    rooms[fileId]["changes"].append({"data":data.content,"userId":userId})
-    print(data.user, fileId, data.content)
+    send({"data": data["content"], "userId": userId}, to=fileId)
+    rooms[fileId]["changes"].append({"data": data["content"], "userId": userId})
+    print(userId, fileId, data["content"])
 
 @socketio.on("disconnect")
 def disconnect():
@@ -313,11 +313,10 @@ def disconnect():
     leave_room(fileId)
     if fileId in rooms.keys():
         rooms[fileId]["users"].remove(userId)
-        if len(rooms[fileId]["users"])==0:
+        if len(rooms[fileId]["users"]) == 0:
             del rooms[fileId]
-    send({"change":"Connected to file room", "userId":""})
+    send({"change": "Disconnected from file room", "userId": ""})
     print("disconnected", userId, fileId)
 
 if __name__ == "__main__":
-    # app.run(debug=True)
     socketio.run(app, debug=True)
