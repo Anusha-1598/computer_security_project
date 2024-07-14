@@ -172,15 +172,27 @@ def renameDocument(userId, fileId, newFileName):
         conn.close()
         return {"body": {"message": "File not found"}, "status_code": 401}
 
-
-def newFile(userId,fileName,dateCreated):
-    # first check the user id is exits in user table or not 
-    # if exists then put the above data in file table
-    fileId = generate_alphanumeric_code()
-    content = ""
-    # return {"body":{"message":"File Created Successfully"}, "status_code":200}
-    # if not exists then return {"body":{"message":"User not found"}, "status_code":401}
-
+def newFile(userId, fileName, dateCreated):
+    # First check if the user ID exists in the users table
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (userId,))
+    user = cursor.fetchone()
+    
+    if user:
+        # If the user exists, insert the new file data into the files table
+        fileId = generate_alphanumeric_code()
+        content = ""
+        cursor.execute('INSERT INTO files (file_id, user_id, date_created, file_name, content) VALUES (?, ?, ?, ?, ?)', 
+                       (fileId, userId, dateCreated, fileName, content))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Created Successfully"}, "status_code": 200}
+    else:
+        # If the user does not exist, return an error message
+        conn.close()
+        return {"body": {"message": "User not found"}, "status_code": 401}
 
 
 def updateFilePermissions(userId, fileId, sharedUsers):
