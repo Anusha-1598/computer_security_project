@@ -65,10 +65,7 @@ const Login = () => {
         method: "POST",
         credentials: "include",
         headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "http://127.0.0.1:5000",
-          "Access-Control-Allow-Credentials": "true",
-          Accept: "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           username: loginData.username,
