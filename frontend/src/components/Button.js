@@ -10,3 +10,4 @@ const Button = ({ type, label }) => {
 };
 
 export default Button;
+
