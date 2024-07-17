@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+from lib.utils.actions import generate_alphanumeric_code
 from lib.utils.cryptic import hash_string
 
 def connect_db():
@@ -181,7 +182,7 @@ def newFile(userId, fileName, dateCreated):
     user = cursor.fetchone()
     
     if user:
-        # If the user exists, insert the new file data into the files table
+        
         fileId = generate_alphanumeric_code()
         content = ""
         cursor.execute('INSERT INTO files (file_id, user_id, date_created, file_name, content) VALUES (?, ?, ?, ?, ?)', 
@@ -190,7 +191,6 @@ def newFile(userId, fileName, dateCreated):
         conn.close()
         return {"body": {"message": "File Created Successfully"}, "status_code": 200}
     else:
-        # If the user does not exist, return an error message
         conn.close()
         return {"body": {"message": "User not found"}, "status_code": 401}
 
@@ -213,3 +213,15 @@ def updateFilePermissions(userId, fileId, sharedUsers):
     else:
         conn.close()
         return {"body": {"message": "File not found"}, "status_code": 401}
+
+def saveDocumentContent(userId,fileId,content):
+    # first check in files table, if the user is the owner of the fileid 
+    # if yes update content here itself using a query
+    # if not check in shared files table with fileid and user id 
+    # if the user is mapped with file id, get the permission
+    permission = "" # put the permission string here
+    if "edit" in permission.split(","):
+        # update the content in files table corresponding to the file id and return as follows
+        return {"body":{"message":"File updated Successfully"},"status_code":200}
+    else:
+        return {"body":{"message":"User dosen't have sufficient privileges"},"status_code":403}
