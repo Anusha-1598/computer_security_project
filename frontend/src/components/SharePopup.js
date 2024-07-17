@@ -49,13 +49,11 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
       });
     }
     console.log(su);
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/updateFilePermissions", {
+    fetch("http://127.0.0.1:5000/updateFilePermissions", {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({
         userId: currentUser,
@@ -69,7 +67,9 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
             dispatch(updateSharedUsers({ fileId, sharedUsers: users }));
           });
         } else {
-          alert(res.message);
+          res.json().then((res) => {
+            alert(res.message);
+          });
         }
       })
       .catch((err) => {
