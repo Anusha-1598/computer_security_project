@@ -30,8 +30,6 @@ const MyDocuments = () => {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ userId: currentUser }),
     })
@@ -55,7 +53,9 @@ const MyDocuments = () => {
             dispatch(setDocuments(l));
           });
         } else {
-          alert(res.message);
+          res.json().then((res) => {
+            alert(res.message);
+          });
         }
       })
       .catch((err) => {
@@ -64,24 +64,20 @@ const MyDocuments = () => {
 
     // fetch("http://127.0.0.1:5000/verifyCookie", {
     //   method: "POST",
+    //   credentials: "include",
     // })
     //   .then((res) => {
     //     if (res.status === 200) {
     //       res.json().then((res) => {
     //         dispatch(setLoginUser(res.userId));
-    //         fetch(
-    //           "http://127.0.0.1:3658/m1/593636-0-default/getUserDocuments",
-    //           {
-    //             method: "POST",
-    //             credentials: "include",
-    //             headers: {
-    //               "Content-Type": "application/json",
-    //               Accept: "application/json",
-    //               "Access-Control-Allow-Origin": "*",
-    //             },
-    //             body: JSON.stringify({ userId: currentUser }),
-    //           }
-    //         )
+    //         fetch("http://127.0.0.1:5000/getUserDocuments", {
+    //           method: "POST",
+    //           credentials: "include",
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //           },
+    //           body: JSON.stringify({ userId: currentUser }),
+    //         })
     //           .then((res) => {
     //             if (res.status === 200) {
     //               res.json().then((res) => {
@@ -106,7 +102,9 @@ const MyDocuments = () => {
     //                 dispatch(setDocuments(l));
     //               });
     //             } else {
-    //               alert(res.message);
+    //               res.json().then((res) => {
+    //                 alert(res.message);
+    //               });
     //             }
     //           })
     //           .catch((err) => {
@@ -114,7 +112,7 @@ const MyDocuments = () => {
     //           });
     //       });
     //     } else {
-    //       let goToLogin = () => dispatch("/login");
+    //       let goToLogin = () => navigate("/login");
     //       goToLogin();
     //       dispatch(setLoginUser(""));
     //     }
@@ -155,14 +153,65 @@ const MyDocuments = () => {
 
   const handleCreateNewDocument = (fileName) => {
     const newDocument = {
-      userId: 1,
-      fileId: documents.length + 104,
+      userId: currentUser,
       fileName,
-      dateCreated: new Date().toISOString().split("T")[0],
-      sharedUsers: [],
-      content: "",
+      dateCreated: new Date(),
     };
-    dispatch(addDocument(newDocument));
+    fetch("http://127.0.0.1:5000/newFile", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...newDocument }),
+    }).then((res) => {
+      if (res.status === 200) {
+        fetch("http://127.0.0.1:5000/getUserDocuments", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: currentUser }),
+        })
+          .then((res) => {
+            if (res.status === 200) {
+              res.json().then((res) => {
+                let fetchedDocuments = [...res.filesList];
+                let l = [];
+                for (var i = 0; i < fetchedDocuments.length; i++) {
+                  let su = [];
+                  for (
+                    var j = 0;
+                    j < fetchedDocuments[i].sharedUsers.length;
+                    j++
+                  ) {
+                    let obj = { ...fetchedDocuments[i].sharedUsers[j] };
+                    su.push({
+                      userId: obj.userId,
+                      permissions: obj.permission.split(","),
+                    });
+                  }
+                  fetchedDocuments[i].sharedUsers = [...su];
+                  l.push(fetchedDocuments[i]);
+                }
+                dispatch(setDocuments(l));
+              });
+            } else {
+              res.json().then((res) => {
+                alert(res.message);
+              });
+            }
+          })
+          .catch((err) => {
+            alert("Failed to fetch documents due to : \n" + err.message);
+          });
+      } else {
+        res.json((res) => {
+          alert(res.message);
+        });
+      }
+    });
     setIsNewDocumentPopupOpen(false);
   };
 
