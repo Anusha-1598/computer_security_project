@@ -11,7 +11,9 @@ import "./App.css"; // Add your CSS here
 
 function App() {
   return (
+    //Provider: Wraps the application with the Redux store.
     <Provider store={store}>
+    //Router: Wraps the application to enable routing.
       <Router>
         <div className="App">
           <Header />
