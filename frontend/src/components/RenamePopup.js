@@ -9,15 +9,16 @@ const RenamePopup = ({ fileId, fileName, onClose }) => {
   const dispatch = useDispatch();
 
   const handleRename = () => {
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/renameDocument", {
+    fetch("http://127.0.0.1:5000/renameDocument", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({ userId: currentUser, fileId: fileId }),
+      body: JSON.stringify({
+        userId: currentUser,
+        fileId: fileId,
+        newFileName: newName,
+      }),
     })
       .then((res) => {
         if (res.status === 200) {
@@ -25,7 +26,9 @@ const RenamePopup = ({ fileId, fileName, onClose }) => {
             dispatch(updateDocumentName({ fileId, newName }));
           });
         } else {
-          alert(res.message);
+          res.json().then((res) => {
+            alert(res.message);
+          });
         }
         onClose();
       })
