@@ -9,13 +9,11 @@ const DeleteConfirmationPopup = ({ fileId, fileName, onClose }) => {
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    fetch("http://127.0.0.1:3658/m1/593636-0-default/deleteDocument", {
+    fetch("http://127.0.0.1:5000/deleteDocument", {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ userId: currentUser, fileId: fileId }),
     })
@@ -25,7 +23,9 @@ const DeleteConfirmationPopup = ({ fileId, fileName, onClose }) => {
             dispatch(deleteDocument(fileId));
           });
         } else {
-          alert(res.message);
+          res.json().then((res) => {
+            alert(res.message);
+          });
         }
         onClose();
       })
