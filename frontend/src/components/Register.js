@@ -18,9 +18,12 @@ const Register = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/verifyCookie", {
+    fetch("http://127.0.0.1:5000/verifyUser", {
       method: "POST",
-      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user: localStorage.getItem("user") }),
     })
       .then((res) => {
         if (res.status === 200) {
@@ -32,7 +35,7 @@ const Register = () => {
         }
       })
       .catch((err) => {
-        alert(err.message);
+        // alert(err.message);
       });
   }, []);
 
@@ -69,6 +72,7 @@ const Register = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({
           username: formData.username,
