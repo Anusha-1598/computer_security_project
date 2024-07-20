@@ -4,11 +4,12 @@ import { updateDocumentContent } from "../redux/documentsSlice";
 import "./EditDocument.css";
 import io from "socket.io-client";
 import { setLoginUser } from "../redux/loginSlice";
+import { useNavigate } from "react-router-dom";
 const socket = io.connect("http://localhost:3001");
 
 const EditDocument = () => {
   const currentUser = useSelector((state) => state.login.loginUser);
-  // const currentUser = "chandu";
+  const navigate = useNavigate();
   const currentDocument = useSelector(
     (state) => state.documents.currentDocument
   );
@@ -38,6 +39,7 @@ const EditDocument = () => {
     socket.on("receive_message", (data) => {
       if (data.roomMessage) {
         setRoomMessage(data.roomMessage);
+        sendMessage(content);
       }
       if (data.userId && data.newContent) {
         setContent(data.newContent);
@@ -46,9 +48,16 @@ const EditDocument = () => {
   }, [socket]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/verifyCookie", {
+    if (!currentDocument) {
+      let goToDashboard = () => navigate("/dashboard");
+      goToDashboard();
+    }
+    fetch("http://127.0.0.1:5000/verifyUser", {
       method: "POST",
-      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user: localStorage.getItem("user") }),
     })
       .then((res) => {
         if (res.status === 200) {
@@ -57,12 +66,11 @@ const EditDocument = () => {
             if (currentDocument) {
               fetch("http://127.0.0.1:5000/getDocumentContent", {
                 method: "POST",
-                credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  userId: currentUser,
+                  userId: currentDocument.ownerName,
                   fileId: currentDocument.fileId,
                 }),
               })
@@ -88,7 +96,7 @@ const EditDocument = () => {
             }
           });
         } else {
-          let goToLogin = () => dispatch("/login");
+          let goToLogin = () => navigate("/login");
           goToLogin();
           dispatch(setLoginUser(""));
         }
@@ -110,7 +118,6 @@ const EditDocument = () => {
   const handleSave = () => {
     fetch("http://127.0.0.1:5000/saveDocumentContent", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
