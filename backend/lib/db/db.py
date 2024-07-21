@@ -15,3 +15,13 @@ def create_tables():
                         user_id TEXT PRIMARY KEY,
                         password_hash TEXT NOT NULL
                       )''')
+
+     # Create files table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS files (
+                        file_id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL,
+                        date_created TEXT NOT NULL,
+                        file_name TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id)
+                      )''')                 
