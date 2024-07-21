@@ -90,3 +90,14 @@ def create_tables():
         return True
     except:
         return False   
+
+        def get_encryption(key):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT encrypted_data FROM cookies WHERE identifier = ?', (key,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return {"signal": True, "encrypted_string": result[0]}
+    else:
+        return {"signal": False}
