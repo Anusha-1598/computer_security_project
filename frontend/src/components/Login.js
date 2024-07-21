@@ -41,3 +41,14 @@ const Login = () => {
         alert(err.message);
       });
   }, []);
+
+  const validate = () => {
+    const errors = {};
+    if (!loginData.username.trim()) {
+      errors.username = "Username is required";
+    }
+    if (!loginData.password) {
+      errors.password = "Password is required";
+    }
+    return errors;
+  };
