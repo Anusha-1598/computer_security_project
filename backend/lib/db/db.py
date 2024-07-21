@@ -160,3 +160,19 @@ def getDocumentContent(userId, fileId):
     else:
         conn.close()
         return {"body": {"message": "File not found"}, "status_code": 401}
+
+        def renameDocument(userId, fileId, newFileName):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()
+    if file:
+        cursor.execute('UPDATE files SET file_name = ? WHERE file_id = ? AND user_id = ?', (newFileName, fileId, userId))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Renamed Successfully"}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "File not found"}, "status_code": 401}
+
+        
