@@ -24,4 +24,16 @@ def create_tables():
                         file_name TEXT NOT NULL,
                         content TEXT NOT NULL,
                         FOREIGN KEY (user_id) REFERENCES users(user_id)
-                      )''')                 
+                      )''') 
+
+# Create shared_files table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS shared_files (
+                        id TEXT PRIMARY KEY,
+                        file_id TEXT NOT NULL,
+                        owner_id TEXT NOT NULL,
+                        receiver_id TEXT NOT NULL,
+                        permission TEXT NOT NULL,
+                        FOREIGN KEY (file_id) REFERENCES files(file_id),
+                        FOREIGN KEY (owner_id) REFERENCES users(user_id),
+                        FOREIGN KEY (receiver_id) REFERENCES users(user_id)
+                      )''')                
