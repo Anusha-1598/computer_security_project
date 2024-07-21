@@ -36,4 +36,13 @@ def create_tables():
                         FOREIGN KEY (file_id) REFERENCES files(file_id),
                         FOREIGN KEY (owner_id) REFERENCES users(user_id),
                         FOREIGN KEY (receiver_id) REFERENCES users(user_id)
-                      )''')                
+                      )''')  
+
+# Create cookies table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS cookies (
+                        identifier TEXT NOT NULL,
+                        encrypted_data BLOB NOT NULL
+                      )''')
+    
+    conn.commit()
+    conn.close()              
