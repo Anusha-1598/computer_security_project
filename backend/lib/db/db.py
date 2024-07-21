@@ -133,3 +133,15 @@ def create_tables():
     
     conn.close()
     return {"body": {"message": "Documents fetched Successfully", "filesList": sharedDocuments}, "status_code": 200}
+
+
+def getDocumentContent(userId, fileId):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT content FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    fileContent = cursor.fetchone()
+    conn.close()
+    if fileContent:
+        return {"body": {"message": "Document fetched Successfully", "fileId": fileId, "fileContent": fileContent[0]}, "status_code": 200}
+    else:
+        return {"body": {"message": "File not found"}, "status_code": 401}
