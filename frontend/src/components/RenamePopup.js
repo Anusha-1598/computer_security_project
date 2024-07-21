@@ -11,14 +11,11 @@ const RenamePopup = ({ fileId, fileName, onClose }) => {
   const handleRename = () => {
     fetch("http://127.0.0.1:5000/renameDocument", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        userId: currentUser,
-        fileId: fileId,
-        newFileName: newName,
-      }),
+      body: JSON.stringify({ userId: currentUser, fileId: fileId }),
     })
       .then((res) => {
         if (res.status === 200) {
