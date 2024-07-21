@@ -223,4 +223,39 @@ def getDocumentContent(userId, fileId):
     else:
         conn.close()
         return {"body": {"message": "File not found"}, "status_code": 401}
+
+        def saveDocumentContent(userId, fileId, content):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()    
+    if file:
+        cursor.execute('UPDATE files SET content = ? WHERE file_id = ? AND user_id = ?', (content, fileId, userId))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File updated Successfully"}, "status_code": 200}
+    else:
+        cursor.execute('SELECT permission FROM shared_files WHERE file_id = ? AND receiver_id = ?', (fileId, userId))
+        shared_file = cursor.fetchone()
+        if shared_file:
+            permission = shared_file[0]
+            if "edit" in permission.split(","):
+                cursor.execute('UPDATE files SET content = ? WHERE file_id = ?', (content, fileId))
+                conn.commit()
+                conn.close()
+                return {"body": {"message": "File updated Successfully"}, "status_code": 200}
+            else:
+                conn.close()
+                return {"body": {"message": "User doesn't have sufficient privileges"}, "status_code": 403}
+        else:
+            conn.close()
+            return {"body": {"message": "File not found"}, "status_code": 401}
+
+            def logout(identifier):
+    conn = connect_db()
+    cursor = conn.cursor()
+    print(identifier)
+    cursor.execute('DELETE FROM cookies WHERE identifier = ?',(identifier,))
+    return {"body":{"message":"User logged out Successfully"},"status_code": 200}
+
   
