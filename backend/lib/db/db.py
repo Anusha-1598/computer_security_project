@@ -77,4 +77,16 @@ def create_tables():
     if user:
         return {"body": {"message": "Login Successfully"}, "status_code": 200}
     else:
-        return {"body": {"message": "Invalid Credentials"}, "status_code": 401}     
+        return {"body": {"message": "Invalid Credentials"}, "status_code": 401}  
+
+        def insert_encryption(key, value):
+    try:
+        print("here")
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO cookies (identifier, encrypted_data) VALUES (?, ?)', (key, value))
+        conn.commit()
+        conn.close()
+        return True
+    except:
+        return False   
