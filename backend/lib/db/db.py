@@ -57,4 +57,12 @@ def create_tables():
         cursor.execute('INSERT INTO users (user_id, password_hash) VALUES (?, ?)', (username, password_hash))
         conn.commit()
         conn.close()
-        return {"body": {"message": "Registered Successfully"}, "status_code": 200}             
+        return {"body": {"message": "Registered Successfully"}, "status_code": 200}    
+
+        def check_username_exists(username):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (username,))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None         
