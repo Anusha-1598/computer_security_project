@@ -145,3 +145,18 @@ def getDocumentContent(userId, fileId):
         return {"body": {"message": "Document fetched Successfully", "fileId": fileId, "fileContent": fileContent[0]}, "status_code": 200}
     else:
         return {"body": {"message": "File not found"}, "status_code": 401}
+
+        def deleteDocument(userId, fileId):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()
+    if file:
+        cursor.execute('DELETE FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+        cursor.execute('DELETE FROM shared_files WHERE file_id = ?', (fileId,))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Deleted Successfully"}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "File not found"}, "status_code": 401}
