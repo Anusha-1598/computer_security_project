@@ -115,3 +115,21 @@ def create_tables():
     
     conn.close()
     return {"body": {"message": "Documents fetched Successfully", "filesList": userDocuments}, "status_code": 200}
+
+    def getSharedDocuments(userId):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT file_id, owner_id, permission FROM shared_files WHERE receiver_id = ?', (userId,))
+    sharedDocuments = [{"fileId": row[0], "ownerName": row[1], "permissions": row[2]} for row in cursor.fetchall()]
+    
+    for document in sharedDocuments:
+        cursor.execute('SELECT file_name FROM files WHERE file_id = ?', (document["fileId"],))
+        fileName = cursor.fetchone()[0]
+        document["fileName"] = fileName
+        
+        cursor.execute('SELECT receiver_id, permission FROM shared_files WHERE file_id = ?', (document["fileId"],))
+        sharedUsers = [{"userId": row[0], "permission": row[1]} for row in cursor.fetchall()]
+        document["sharedUsers"] = sharedUsers
+    
+    conn.close()
+    return {"body": {"message": "Documents fetched Successfully", "filesList": sharedDocuments}, "status_code": 200}
