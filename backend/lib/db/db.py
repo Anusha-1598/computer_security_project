@@ -45,4 +45,16 @@ def create_tables():
                       )''')
     
     conn.commit()
-    conn.close()              
+    conn.close() 
+
+    def register_user(username, password):
+    if check_username_exists(username):
+        return {"body": {"message": "Username already exists"}, "status_code": 401}
+    else:
+        password_hash = hash_string(password)
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (user_id, password_hash) VALUES (?, ?)', (username, password_hash))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "Registered Successfully"}, "status_code": 200}             
