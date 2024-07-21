@@ -101,3 +101,17 @@ def create_tables():
         return {"signal": True, "encrypted_string": result[0]}
     else:
         return {"signal": False}
+
+        def getDocuments(userId):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT file_id, file_name, date_created  FROM files WHERE user_id = ?', (userId,))
+    userDocuments = [{"fileId": row[0], "fileName": row[1], "dateCreated": row[2], "ownerName":userId} for row in cursor.fetchall()]
+    
+    for document in userDocuments:
+        cursor.execute('SELECT receiver_id, permission FROM shared_files WHERE file_id = ?', (document["fileId"],))
+        sharedUsers = [{"userId": row[0], "permission": row[1]} for row in cursor.fetchall()]
+        document["sharedUsers"] = sharedUsers
+    
+    conn.close()
+    return {"body": {"message": "Documents fetched Successfully", "filesList": userDocuments}, "status_code": 200}
