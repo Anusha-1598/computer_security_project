@@ -65,4 +65,16 @@ def create_tables():
     cursor.execute('SELECT * FROM users WHERE user_id = ?', (username,))
     user = cursor.fetchone()
     conn.close()
-    return user is not None         
+    return user is not None    
+
+    def login_user(username, password):
+    password_hash = hash_string(password)
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE user_id = ? AND password_hash = ?', (username, password_hash))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        return {"body": {"message": "Login Successfully"}, "status_code": 200}
+    else:
+        return {"body": {"message": "Invalid Credentials"}, "status_code": 401}     
