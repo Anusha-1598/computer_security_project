@@ -192,4 +192,35 @@ def getDocumentContent(userId, fileId):
         conn.close()
         return {"body": {"message": "User not found"}, "status_code": 401}      
 
-    
+  def updateFilePermissions(userId, fileId, sharedUsers):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM files WHERE file_id = ? AND user_id = ?', (fileId, userId))
+    file = cursor.fetchone()
+    if file:
+        cursor.execute('DELETE FROM shared_files WHERE file_id = ?', (fileId,))
+        rejected_users = []
+        for entry in sharedUsers:
+            sharedUserId = entry["userId"]
+            cursor.execute('SELECT * FROM users WHERE user_id = ?',(entry["userId"],))
+            user = cursor.fetchone()
+            print(user)
+            if user:
+                permission = entry["permission"]
+                cursor.execute('INSERT INTO shared_files (file_id, owner_id, receiver_id, permission) VALUES (?, ?, ?, ?)', 
+                           (fileId, userId, sharedUserId, permission))
+            else:
+                print("rejected")
+                rejected_users.append(entry["userId"])
+        conn.commit()
+        conn.close()
+        message = "File Permissions Updated Successfully"
+        if len(rejected_users)!=0:
+            for userId in rejected_users:
+                message += "\nUserId {} not found".format(userId)
+        print(message, rejected_users)
+        return {"body": {"message": message, "rejectedUsers":rejected_users, "isRejected":True if len(rejected_users)!=0 else False}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "File not found"}, "status_code": 401}
+  
