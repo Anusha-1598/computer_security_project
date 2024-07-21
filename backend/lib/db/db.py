@@ -175,4 +175,21 @@ def getDocumentContent(userId, fileId):
         conn.close()
         return {"body": {"message": "File not found"}, "status_code": 401}
 
-        
+  def newFile(userId, fileName, dateCreated):
+    conn = connect_db()
+    cursor = conn.cursor()    
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (userId,))
+    user = cursor.fetchone()
+    if user:
+        fileId = generate_alphanumeric_code()
+        content = ""
+        cursor.execute('INSERT INTO files (file_id, user_id, date_created, file_name, content) VALUES (?, ?, ?, ?, ?)', 
+                       (fileId, userId, dateCreated, fileName, content))
+        conn.commit()
+        conn.close()
+        return {"body": {"message": "File Created Successfully"}, "status_code": 200}
+    else:
+        conn.close()
+        return {"body": {"message": "User not found"}, "status_code": 401}      
+
+    
