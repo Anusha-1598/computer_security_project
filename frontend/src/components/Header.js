@@ -6,4 +6,8 @@ import { useSelector } from "react-redux";
 const Header = () => {
   const loginData = useSelector((state) => state.login);
   return (
-    
+    <header className="header">
+    <h1>Docs</h1>
+    {loginData.loginUser ? (
+      <></>
+    ) : ( 
