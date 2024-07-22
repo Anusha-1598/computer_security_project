@@ -42,14 +42,16 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
 
   const handleSave = () => {
     let su = [];
-    for (var i = 0; i < users.length; i++) {
+    for (var i = 0; i < sharedUsers.length; i++) {
       su.push({
-        userId: users[i].userId,
-        permission: users[i].permissions.join(","),
+        userId: sharedUsers[i].userId,
+        permission: sharedUsers[i].permissions.join(","),
       });
     }
+    console.log(su);
     fetch("http://127.0.0.1:5000/updateFilePermissions", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -62,18 +64,7 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
       .then((res) => {
         if (res.status === 200) {
           res.json().then((res) => {
-            let newUsers = [];
-            if (res.isRejected) {
-              for (var i = 0; i < users.length; i++) {
-                if (res.rejectedUsers.indexOf(users[i].userId) === -1) {
-                  newUsers.push(users[i]);
-                }
-              }
-              alert(res.message);
-            } else {
-              newUsers = [...users];
-            }
-            dispatch(updateSharedUsers({ fileId, sharedUsers: newUsers }));
+            dispatch(updateSharedUsers({ fileId, sharedUsers: users }));
           });
         } else {
           res.json().then((res) => {
