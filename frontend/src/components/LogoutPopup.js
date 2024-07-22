@@ -1,7 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useDispatch } from "react-redux";
+import { setLoginUser } from "../redux/loginSlice";
 const LogoutPopup = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
     fetch("http://127.0.0.1:5000/logout", {
@@ -16,6 +18,7 @@ const LogoutPopup = () => {
       .then((response) => {
         if (response.ok) {
           localStorage.removeItem("user");
+          dispatch(setLoginUser(""));
           let gotoLogin = () => navigate("/login");
           gotoLogin();
         } else {
@@ -45,4 +48,3 @@ const LogoutPopup = () => {
 };
 
 export default LogoutPopup;
-
