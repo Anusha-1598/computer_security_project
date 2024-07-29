@@ -1,17 +1,14 @@
 import hashlib
-PRIVATE_KEY = "I am Batman"
 import os
 import pickle
 import base64
-import hashlib
 import uuid
 from cryptography.hazmat.primitives import padding, hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 
-# In-memory storage for mapping fixed-length identifiers to encrypted data
-storage = {}
+PRIVATE_KEY = "I am Batman"
 
 def generate_key(password: str, salt: bytes) -> bytes:
     kdf = PBKDF2HMAC(
@@ -57,7 +54,7 @@ def to_fixed_length_alphanumeric(data, length=25):
 def encrypt_to_fixed_length_string(obj, password=PRIVATE_KEY, length=25):
     encrypted_data = encrypt_object(obj, password)
     identifier = to_fixed_length_alphanumeric(uuid.uuid4().bytes, length)
-    return {"identifier":identifier,"encrypted_data":encrypted_data}
+    return {"identifier": identifier, "encrypted_data": encrypted_data}
 
 def decrypt_from_fixed_length_string(encrypted_data, password=PRIVATE_KEY):
     return decrypt_object(encrypted_data, password)
