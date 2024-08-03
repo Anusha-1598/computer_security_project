@@ -11,7 +11,6 @@ const DeleteConfirmationPopup = ({ fileId, fileName, onClose }) => {
   const handleDelete = () => {
     fetch("http://127.0.0.1:5000/deleteDocument", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -39,7 +38,9 @@ const DeleteConfirmationPopup = ({ fileId, fileName, onClose }) => {
       <div className="popup-inner">
         <h2>Delete Document</h2>
         <p>Are you sure you want to delete {fileName}?</p>
-        <button onClick={handleDelete}>Delete</button>
+        <button className="bg-red-500 text-white" onClick={handleDelete}>
+          Delete
+        </button>
         <button onClick={onClose}>Cancel</button>
       </div>
     </div>
