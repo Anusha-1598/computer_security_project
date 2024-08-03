@@ -1,4 +1,3 @@
-// src/components/NewDocumentPopup.js
 import React, { useState } from "react";
 import "./Popup.css";
 
@@ -19,9 +18,12 @@ const NewDocumentPopup = ({ onClose, onCreate }) => {
           type="text"
           placeholder="Enter file name"
           value={fileName}
+          className="border-2 border-black border-solid rounded-md"
           onChange={(e) => setFileName(e.target.value)}
         />
-        <button onClick={handleCreate}>Create</button>
+        <button className="bg-green-500 text-white" onClick={handleCreate}>
+          Create
+        </button>
         <button onClick={onClose}>Cancel</button>
       </div>
     </div>

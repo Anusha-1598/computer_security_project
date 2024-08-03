@@ -147,8 +147,8 @@ const EditDocument = () => {
   };
 
   return (
-    <div className="edit-document">
-      <div className="document-info">
+    <div className="edit-document flex flex-col justify-center items-center">
+      <div className=" w-full flex justify-center items-center gap-10">
         <h2>Document Editor</h2>
         <p>
           <strong>File Name:</strong> {currentDocument.fileName}
@@ -175,7 +175,7 @@ const EditDocument = () => {
           </div>
         )}
       </div>
-      <div className="editor">
+      <div className="editor w-full">
         <textarea
           className="editor-textarea"
           placeholder="Start writing your document here..."
@@ -183,8 +183,8 @@ const EditDocument = () => {
           onChange={handleContentChange}
         ></textarea>
       </div>
-      <div className="editor-actions">
-        <button className="save-button" onClick={handleSave}>
+      <div className="flex justify-end items-end w-full">
+        <button className="save-button mr-14" onClick={handleSave}>
           Save
         </button>
       </div>
@@ -194,5 +194,3 @@ const EditDocument = () => {
 };
 
 export default EditDocument;
-
-// https://codesandbox.io/s/slate-react-rich-text-editor-fbqre?file=/src/App.js

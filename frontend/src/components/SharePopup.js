@@ -42,16 +42,14 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
 
   const handleSave = () => {
     let su = [];
-    for (var i = 0; i < sharedUsers.length; i++) {
+    for (var i = 0; i < users.length; i++) {
       su.push({
-        userId: sharedUsers[i].userId,
-        permission: sharedUsers[i].permissions.join(","),
+        userId: users[i].userId,
+        permission: users[i].permissions.join(","),
       });
     }
-    console.log(su);
     fetch("http://127.0.0.1:5000/updateFilePermissions", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -64,7 +62,18 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
       .then((res) => {
         if (res.status === 200) {
           res.json().then((res) => {
-            dispatch(updateSharedUsers({ fileId, sharedUsers: users }));
+            let newUsers = [];
+            if (res.isRejected) {
+              for (var i = 0; i < users.length; i++) {
+                if (res.rejectedUsers.indexOf(users[i].userId) === -1) {
+                  newUsers.push(users[i]);
+                }
+              }
+              alert(res.message);
+            } else {
+              newUsers = [...users];
+            }
+            dispatch(updateSharedUsers({ fileId, sharedUsers: newUsers }));
           });
         } else {
           res.json().then((res) => {
@@ -86,11 +95,12 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
           <input
             type="text"
             placeholder="Enter user ID"
+            className="border-2 rounded-md"
             value={newUserId}
             onChange={(e) => setNewUserId(e.target.value)}
           />
-          <div>
-            <label>
+          <div className="flex justify-center items-center gap-4">
+            <label className="flex justify-center items-center gap-2">
               <input
                 type="checkbox"
                 name="view"
@@ -99,7 +109,7 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
               />
               View
             </label>
-            <label>
+            <label className="flex justify-center items-center gap-2">
               <input
                 type="checkbox"
                 name="edit"
@@ -109,7 +119,9 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
               Edit
             </label>
           </div>
-          <button onClick={handleAddUser}>Add User</button>
+          <button className="bg-blue-500 text-white " onClick={handleAddUser}>
+            Add User
+          </button>
           {error && <p className="error">{error}</p>}
         </div>
         <ul>
@@ -118,14 +130,21 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
               <span>
                 {user.userId} - {user.permissions.join(", ")}
               </span>
-              <button onClick={() => handleRemoveUser(user.userId)}>
+              <button
+                className="bg-red-500 text-white"
+                onClick={() => handleRemoveUser(user.userId)}
+              >
                 Remove
               </button>
             </li>
           ))}
         </ul>
-        <button onClick={handleSave}>Save</button>
-        <button onClick={onClose}>Cancel</button>
+        <button className="bg-green-500 text-white" onClick={handleSave}>
+          Save
+        </button>
+        <button className="" onClick={onClose}>
+          Cancel
+        </button>
       </div>
     </div>
   );
