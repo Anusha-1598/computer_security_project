@@ -22,22 +22,16 @@ This project provides students with a safe platform for document collaboration t
 Back-end - Python (Flask) 
 Front-end - React.js 
 Database - SQLite 
-Authentication - JSON
-Libraries - Bcrypt, Flask-JWT-Extended, Flask-SQLAlchemy, Flask Socket.IO, google-auth-httplib2, google-auth-oauthlib, 
-Docker
+Libraries - Bcrypt, Flask-JWT-Extended, Flask-SQLAlchemy, Flask Socket.IO
 
 
 **Functional Requirements:**
 1) Registration - User must be able to register with the unique username, password and select the access required for example, Student, Teacher, Admin. The password uses a hashing algorithm for which bcrypt is used.
 2) Login - User should be able to log in with their username and password after which the user will receive a JWT token for authentication.
 3) User Authentication - Only authenticated user will be able to access the system which will be done once the user validates JWT token authentication.
-4) User Roles - There are three roles in this system with specific permissions  , they are 
-  Student  - A Student can create, edit and view their documents
-  Teacher - A teacher can view and edit documents shared with them by the students
-  Admin - An admin can manage users and documents
-5) Document Management - User should be able to create, edit, view and share their documents stored in the database
-6) Data Encryption - The content within the document will be encrypted using AES encryption . RSA will be used for secure key exchange between the users.
-7) Secure Communication - The communication between client and the server uses HTTPS for encryption and OAuth 2.0 for secure interaction with Google APIs.
+4) Document Management - User should be able to create, edit, view and share their documents stored in the database
+5) Data Encryption - The content within the document will be encrypted using AES encryption . RSA will be used for secure key exchange between the users.
+6) Secure Communication - The communication between client and the server uses HTTPS for encryption.
 
 
 
