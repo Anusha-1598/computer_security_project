@@ -3,15 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import "./ViewDocument.css";
 import { setLoginUser } from "../redux/loginSlice";
 import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 const socket = io.connect("http://localhost:3001");
 
 const ViewDocument = () => {
   const currentUser = useSelector((state) => state.login.loginUser);
-  // const currentUser = "chandu";
   const [content, setContent] = useState("");
   const currentDocument = useSelector(
     (state) => state.documents.currentDocument
   );
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [roomMessage, setRoomMessage] = useState("");
 
@@ -36,6 +37,7 @@ const ViewDocument = () => {
     socket.on("receive_message", (data) => {
       if (data.roomMessage) {
         setRoomMessage(data.roomMessage);
+        sendMessage(content);
       }
       if (data.userId && data.newContent) {
         setContent(data.newContent);
@@ -44,8 +46,16 @@ const ViewDocument = () => {
   }, [socket]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/verifyCookie", {
+    if (!currentDocument) {
+      let goToDashboard = () => navigate("/dashboard");
+      goToDashboard();
+    }
+    fetch("http://127.0.0.1:5000/verifyUser", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user: localStorage.getItem("user") }),
     })
       .then((res) => {
         if (res.status === 200) {
@@ -54,12 +64,11 @@ const ViewDocument = () => {
             if (currentDocument) {
               fetch("http://127.0.0.1:5000/getDocumentContent", {
                 method: "POST",
-                credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  userId: currentUser,
+                  userId: currentDocument.ownerName,
                   fileId: currentDocument.fileId,
                 }),
               })
@@ -84,7 +93,7 @@ const ViewDocument = () => {
             }
           });
         } else {
-          let goToLogin = () => dispatch("/login");
+          let goToLogin = () => navigate("/login");
           goToLogin();
           dispatch(setLoginUser(""));
         }
@@ -99,19 +108,19 @@ const ViewDocument = () => {
   }
 
   return (
-    <div className="view-document">
-      <div className="document-info">
-        <h2>Document Viewer</h2>
-        <p>
+    <div className="view-document flex flex-col justify-center items-center">
+      <div className=" w-full flex justify-center items-center gap-10">
+        <div>Document Viewer</div>
+        <div>
           <strong>File Name:</strong> {currentDocument.fileName}
-        </p>
-        <p>
+        </div>
+        <div>
           <strong>File ID:</strong> {currentDocument.fileId}
-        </p>
+        </div>
         {currentDocument.ownerName && (
-          <p>
+          <div>
             <strong>Owner:</strong> {currentDocument.ownerName}
-          </p>
+          </div>
         )}
         {roomMessage.length !== 0 ? <p>{roomMessage}</p> : <></>}
         {currentDocument.sharedUsers && (
@@ -127,7 +136,7 @@ const ViewDocument = () => {
           </div>
         )}
       </div>
-      <div className="viewer">
+      <div className="viewer w-full">
         <textarea
           className="viewer-textarea"
           value={content}
