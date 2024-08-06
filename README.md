@@ -30,7 +30,7 @@ Libraries - Bcrypt, Flask-JWT-Extended, Flask-SQLAlchemy, Flask Socket.IO
 2) Login - User should be able to log in with their username and password after which the user will receive a JWT token for authentication.
 3) User Authentication - Only authenticated user will be able to access the system which will be done once the user validates JWT token authentication.
 4) Document Management - User should be able to create, edit, view and share their documents stored in the database
-5) Data Encryption - The content within the document will be encrypted using AES encryption . RSA will be used for secure key exchange between the users.
+5) Data Encryption - The content within the document will be encrypted using AES encryption The code does not include any key exchange mechanism. It relies on a shared secret (a password) that both parties must know to encrypt and decrypt data.
 6) Secure Communication - The communication between client and the server uses HTTPS for encryption.
 
 
