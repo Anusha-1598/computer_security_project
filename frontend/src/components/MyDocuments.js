@@ -25,7 +25,7 @@ const MyDocuments = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/verifyUser", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/verifyUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,7 +36,7 @@ const MyDocuments = () => {
         if (res.status === 200) {
           res.json().then((res) => {
             dispatch(setLoginUser(res.userId));
-            fetch("http://127.0.0.1:5000/getUserDocuments", {
+            fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/getUserDocuments", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -123,7 +123,7 @@ const MyDocuments = () => {
       fileName,
       dateCreated: new Date(),
     };
-    fetch("http://127.0.0.1:5000/newFile", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/newFile", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +131,7 @@ const MyDocuments = () => {
       body: JSON.stringify({ ...newDocument }),
     }).then((res) => {
       if (res.status === 200) {
-        fetch("http://127.0.0.1:5000/getUserDocuments", {
+        fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/getUserDocuments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -17,7 +17,7 @@ const SharedDocuments = () => {
   );
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/verifyUser", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/verifyUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +28,7 @@ const SharedDocuments = () => {
         if (res.status === 200) {
           res.json().then((res) => {
             dispatch(setLoginUser(res.userId));
-            fetch("http://127.0.0.1:5000/getSharedDocuments", {
+            fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/getSharedDocuments", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

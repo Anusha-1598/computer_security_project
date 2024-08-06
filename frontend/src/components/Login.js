@@ -17,7 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/verifyUser", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/verifyUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +58,7 @@ const Login = () => {
       return;
     }
     try {
-      fetch("http://127.0.0.1:5000/login", {
+      fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

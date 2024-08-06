@@ -50,7 +50,7 @@ const ViewDocument = () => {
       let goToDashboard = () => navigate("/dashboard");
       goToDashboard();
     }
-    fetch("http://127.0.0.1:5000/verifyUser", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/verifyUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +62,7 @@ const ViewDocument = () => {
           res.json().then((res) => {
             dispatch(setLoginUser(res.userId));
             if (currentDocument) {
-              fetch("http://127.0.0.1:5000/getDocumentContent", {
+              fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/getDocumentContent", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
