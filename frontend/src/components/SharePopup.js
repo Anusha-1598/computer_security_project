@@ -48,7 +48,7 @@ const SharePopup = ({ fileId, sharedUsers = [], onClose }) => {
         permission: users[i].permissions.join(","),
       });
     }
-    fetch("http://127.0.0.1:5000/updateFilePermissions", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/updateFilePermissions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

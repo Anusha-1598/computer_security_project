@@ -9,7 +9,7 @@ const DeleteConfirmationPopup = ({ fileId, fileName, onClose }) => {
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    fetch("http://127.0.0.1:5000/deleteDocument", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/deleteDocument", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

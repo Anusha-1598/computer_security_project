@@ -6,7 +6,7 @@ const LogoutPopup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
-    fetch("http://127.0.0.1:5000/logout", {
+    fetch("https://fictional-space-acorn-9xg4qqjgqpghr96-5000.app.github.dev/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
