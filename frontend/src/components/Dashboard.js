@@ -5,10 +5,8 @@ import SharedDocuments from "./SharedDocuments";
 import EditDocument from "./EditDocument";
 import ViewDocument from "./ViewDocument";
 import "./Dashboard.css";
-import { useSelector } from "react-redux";
 
 const Dashboard = () => {
-  const loginData = useSelector((state) => state.login);
   return (
     <div className="dashboard">
       <nav className="sidebar">
@@ -39,4 +37,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

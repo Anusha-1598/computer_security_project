@@ -11,11 +11,14 @@ const RenamePopup = ({ fileId, fileName, onClose }) => {
   const handleRename = () => {
     fetch("http://127.0.0.1:5000/renameDocument", {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId: currentUser, fileId: fileId }),
+      body: JSON.stringify({
+        userId: currentUser,
+        fileId: fileId,
+        newFileName: newName,
+      }),
     })
       .then((res) => {
         if (res.status === 200) {
@@ -41,6 +44,7 @@ const RenamePopup = ({ fileId, fileName, onClose }) => {
         <input
           type="text"
           value={newName}
+          className="border-2 rounded-md"
           onChange={(e) => setNewName(e.target.value)}
         />
         {newName.length === 0 ? (
@@ -48,8 +52,12 @@ const RenamePopup = ({ fileId, fileName, onClose }) => {
         ) : (
           <></>
         )}
-        <button onClick={handleRename}>Rename</button>
-        <button onClick={onClose}>Cancel</button>
+        <button className="bg-green-500 text-white" onClick={handleRename}>
+          Rename
+        </button>
+        <button className="border-2 rounded-sm border-black" onClick={onClose}>
+          Cancel
+        </button>
       </div>
     </div>
   );
