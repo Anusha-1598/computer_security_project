@@ -11,7 +11,7 @@ import traceback
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "vafuiwkxdml"
-cors = CORS(app, supports_credentials=True, resources={r'/verifyCookie': {'origins': 'https://fictional-space-acorn-9xg4qqjgqpghr96-3000.app.github.dev/', "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"], "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"], "expose_headers": ["Content-Disposition"]}})
+cors = CORS(app, supports_credentials=True, resources={r'/verifyCookie': {'origins': 'http://127.0.0.1:3000', "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"], "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"], "expose_headers": ["Content-Disposition"]}})
 
 @app.after_request
 def add_cors_headers(response):
