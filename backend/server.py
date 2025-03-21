@@ -15,7 +15,7 @@ cors = CORS(app, supports_credentials=True, resources={r'/verifyCookie': {'origi
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://fictional-space-acorn-9xg4qqjgqpghr96-3000.app.github.dev/"
+    response.headers["Access-Control-Allow-Origin"] = "http://127.0.0.1:3000"
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
